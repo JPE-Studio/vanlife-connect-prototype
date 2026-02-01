@@ -1,17 +1,21 @@
 # Vanlife Connect Prototype
 
-Mobile-first Klick-Prototyp für eine Vanlife Social-Plattform.
+## Live Demo
+https://jpe-studio.github.io/vanlife-connect-prototype/
 
-## Features
-- GPS-basierter Feed (5km Radius)
-- Chat-Style Kommentare
-- Like & Reaktionen
-- Distanz-Anzeige ("nah", "500m", etc.)
+## Lokale Entwicklung
+```bash
+# Datei öffnen
+open index.html
+```
 
-## Demo
-Öffne `index.html` im Browser oder besuche die GitHub Pages URL.
+## Deployment
+1. Änderungen in `index.html` machen
+2. `git add index.html`
+3. `git commit -m "Beschreibung der Änderung"`
+4. `git push`
+5. 1-2 Minuten warten → automatisch live
 
-## Tech Stack
-- HTML5
-- CSS3 (Mobile-first)
-- Vanilla JavaScript
+## GitHub Pages Einstellungen
+- Settings → Pages → Source: Deploy from a branch
+- Branch: main → / (root)
