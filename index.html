@@ -1099,32 +1099,706 @@
         }
 
         /* ============================================
-           PLATZHALTER-STYLES (Zu implementieren)
+           PRIORITY1 SCREEN STYLES
            ============================================ */
 
         /* Settings Page Styles */
         .settings-page {
-            /* TODO: Styles für Einstellungen-Hauptseite */
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #FFF8F0;
+            z-index: 2000;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .settings-page.active {
+            display: flex;
+        }
+
+        .settings-header {
+            background: #FF8F00;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .settings-header h2 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .settings-section {
+            margin-bottom: 16px;
+        }
+
+        .settings-section-title {
+            font-size: 13px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 16px 16px 8px;
+            font-weight: 600;
+        }
+
+        .settings-group {
+            background: white;
+            margin: 0 12px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .settings-item-icon.blue { background: #E3F2FD; }
+        .settings-item-icon.green { background: #E8F5E9; }
+        .settings-item-icon.orange { background: #FFF3E0; }
+        .settings-item-icon.red { background: #FFEBEE; }
+        .settings-item-icon.purple { background: #F3E5F5; }
+        .settings-item-icon.gray { background: #F5F5F5; }
+
+        .settings-item-content {
+            flex: 1;
+        }
+
+        .settings-item-title {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .settings-item-subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .settings-item-arrow {
+            color: #999;
+            font-size: 18px;
+        }
+
+        .settings-toggle {
+            width: 48px;
+            height: 28px;
+            background: #ddd;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .settings-toggle.active {
+            background: #FF8F00;
+        }
+
+        .settings-toggle::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .settings-toggle.active::after {
+            transform: translateX(20px);
         }
 
         /* Saved Spots Page Styles */
         .saved-spots-page {
-            /* TODO: Styles für gespeicherte Spots-Liste */
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #FFF8F0;
+            z-index: 2000;
+            flex-direction: column;
+        }
+
+        .saved-spots-page.active {
+            display: flex;
+        }
+
+        .saved-spots-header {
+            background: #FF8F00;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .saved-spots-header h2 {
+            font-size: 17px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .saved-spots-filter {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .saved-spots-filter-btn {
+            background: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .saved-spots-filter-btn.active {
+            background: #FF8F00;
+            color: white;
+        }
+
+        .saved-spots-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 12px 12px;
+        }
+
+        .saved-spot-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            position: relative;
+        }
+
+        .saved-spot-card.swiped {
+            transform: translateX(-80px);
+        }
+
+        .saved-spot-content {
+            padding: 14px 16px;
+            background: white;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.2s;
+        }
+
+        .saved-spot-delete {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 80px;
+            background: #ff4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .saved-spot-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .saved-spot-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .saved-spot-info {
+            flex: 1;
+        }
+
+        .saved-spot-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .saved-spot-location {
+            font-size: 13px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .saved-spot-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #FFB300;
+            font-size: 13px;
+        }
+
+        .saved-spot-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .saved-spot-tag {
+            background: #FFF3E0;
+            color: #FF8F00;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .saved-spot-note {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #666;
         }
 
         /* My Posts Page Styles */
         .my-posts-page {
-            /* TODO: Styles für eigene Beiträge */
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #FFF8F0;
+            z-index: 2000;
+            flex-direction: column;
+        }
+
+        .my-posts-page.active {
+            display: flex;
+        }
+
+        .my-posts-header {
+            background: #FF8F00;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .my-posts-header h2 {
+            font-size: 17px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .my-posts-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .my-posts-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 14px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .my-posts-tab.active {
+            color: #FF8F00;
+            border-bottom-color: #FF8F00;
+            font-weight: 600;
+        }
+
+        .my-posts-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .my-post-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .my-post-header {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .my-post-channel {
+            font-size: 12px;
+            color: #FF8F00;
+            background: #FFF3E0;
+            padding: 4px 10px;
+            border-radius: 10px;
+        }
+
+        .my-post-date {
+            font-size: 12px;
+            color: #888;
+            margin-left: auto;
+        }
+
+        .my-post-content {
+            padding: 14px 16px;
+            font-size: 15px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .my-post-stats {
+            display: flex;
+            gap: 20px;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .my-post-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .my-post-actions {
+            display: flex;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .my-post-action {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .my-post-action:first-child {
+            border-right: 1px solid #f0f0f0;
+            color: #FF8F00;
+        }
+
+        .my-post-action:last-child {
+            color: #ff4444;
         }
 
         /* Spot Detail Page Styles */
         .spot-detail-page {
-            /* TODO: Styles für Spot-Detailansicht */
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #FFF8F0;
+            z-index: 3000;
+            flex-direction: column;
+            overflow-y: auto;
         }
 
-        /* Chat Detail Page Styles */
-        .chat-detail-page {
-            /* TODO: Styles für einzelne Konversation */
+        .spot-detail-page.active {
+            display: flex;
+        }
+
+        .spot-detail-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+        }
+
+        .spot-detail-back, .spot-detail-actions {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .spot-detail-carousel {
+            height: 280px;
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+
+        .spot-detail-dots {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .spot-detail-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .spot-detail-dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .spot-detail-content {
+            flex: 1;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            margin-top: -20px;
+            padding: 20px 16px 100px;
+        }
+
+        .spot-detail-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .spot-detail-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .spot-detail-stars {
+            color: #FFB300;
+            font-size: 18px;
+        }
+
+        .spot-detail-reviews {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .spot-detail-section {
+            margin-bottom: 20px;
+        }
+
+        .spot-detail-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .spot-detail-description {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .spot-detail-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .spot-detail-info-item {
+            background: #f8f9fa;
+            padding: 14px;
+            border-radius: 12px;
+        }
+
+        .spot-detail-info-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .spot-detail-info-value {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .spot-detail-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .spot-detail-amenity {
+            background: #FFF3E0;
+            color: #FF8F00;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .spot-detail-map {
+            height: 180px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .spot-detail-map img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .spot-detail-checkins {
+            background: #E8F5E9;
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spot-detail-checkin-avatars {
+            display: flex;
+        }
+
+        .spot-detail-checkin-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 2px solid white;
+            margin-left: -8px;
+        }
+
+        .spot-detail-checkin-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .spot-detail-checkin-text {
+            font-size: 14px;
+            color: #2e7d32;
+        }
+
+        .spot-detail-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 12px 16px 24px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+        }
+
+        .spot-detail-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .spot-detail-btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .spot-detail-btn-primary {
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 143, 0, 0.3);
         }
 
         /* Search Page Styles */
@@ -1725,15 +2399,15 @@
                 <div class="profile-handle">@JPE_Studio</div>
                 
                 <div class="profile-stats">
-                    <div class="profile-stat">
+                    <div class="profile-stat" onclick="openMyPosts()">
                         <div class="profile-stat-value">23</div>
                         <div class="profile-stat-label">Posts</div>
                     </div>
-                    <div class="profile-stat">
+                    <div class="profile-stat" onclick="showToast('Follower-Liste')">
                         <div class="profile-stat-value">156</div>
                         <div class="profile-stat-label">Follower</div>
                     </div>
-                    <div class="profile-stat">
+                    <div class="profile-stat" onclick="showToast('Folge ich-Liste')">
                         <div class="profile-stat-value">89</div>
                         <div class="profile-stat-label">Folgt</div>
                     </div>
@@ -1741,33 +2415,33 @@
             </div>
 
             <div class="profile-menu">
-                <div class="profile-menu-item" onclick="showToast('Meine Posts')">
+                <div class="profile-menu-item" onclick="openMyPosts()">
                     <span class="profile-menu-icon">📝</span>
                     <span class="profile-menu-text">Meine Posts</span>
                     <span class="profile-menu-arrow">›</span>
                 </div>
-                <div class="profile-menu-item" onclick="showToast('Gespeicherte Spots')">
+                <div class="profile-menu-item" onclick="openSavedSpots()">
                     <span class="profile-menu-icon">📍</span>
                     <span class="profile-menu-text">Gespeicherte Spots</span>
                     <span class="profile-menu-arrow">›</span>
                 </div>
-                <div class="profile-menu-item" onclick="showToast('Benachrichtigungen')">
+                <div class="profile-menu-item" onclick="showToast('Benachrichtigungseinstellungen')">
                     <span class="profile-menu-icon">🔔</span>
                     <span class="profile-menu-text">Benachrichtigungen</span>
                     <span class="notification-badge" style="position: static;">3</span>
                     <span class="profile-menu-arrow">›</span>
                 </div>
-                <div class="profile-menu-item" onclick="showToast('Sprache: Deutsch')">
+                <div class="profile-menu-item" onclick="showToast('Spracheinstellungen')">
                     <span class="profile-menu-icon">🌍</span>
                     <span class="profile-menu-text">Sprache: Deutsch</span>
                     <span class="profile-menu-arrow">›</span>
                 </div>
-                <div class="profile-menu-item" onclick="showToast('Einstellungen')">
+                <div class="profile-menu-item" onclick="openSettings()">
                     <span class="profile-menu-icon">⚙️</span>
                     <span class="profile-menu-text">Einstellungen</span>
                     <span class="profile-menu-arrow">›</span>
                 </div>
-                <div class="profile-menu-item" onclick="showToast('Hilfe & Support')">
+                <div class="profile-menu-item" onclick="showToast('Hilfe und Support')">
                     <span class="profile-menu-icon">❓</span>
                     <span class="profile-menu-text">Hilfe & Support</span>
                     <span class="profile-menu-arrow">›</span>
@@ -1818,56 +2492,420 @@
          PLATZHALTER-SCREENS (Zu implementieren)
          ============================================ -->
 
-    <!-- SETTINGS PAGE 
-         Beschreibung: Einstellungen-Hauptseite mit Kategorien:
-         - Account (E-Mail, Telefon, Passwort ändern)
-         - Privatsphäre (Sichtbarkeit, Blockierte Nutzer)
-         - Benachrichtigungen (Push, E-Mail, In-App)
-         - Datenschutz (Cookies, Analytics, Download Daten)
-         - Zugänglichkeit (Schriftgröße, Kontrast, Sprache)
-         - Über (Version, Impressum, AGB)
-    -->
-    <div class="settings-page" id="settingsPage" style="display:none;">
-        <!-- TODO: Implementieren -->
+    <!-- SETTINGS PAGE -->
+    <div class="settings-page" id="settingsPage">
+        <div class="settings-header">
+            <button class="back-btn" onclick="closeSettings()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h2>⚙️ Einstellungen</h2>
+        </div>
+        <div style="flex: 1; overflow-y: auto;">
+            <div class="settings-section">
+                <div class="settings-section-title">Account</div>
+                <div class="settings-group">
+                    <div class="settings-item" onclick="showToast('E-Mail ändern')">
+                        <div class="settings-item-icon blue">📧</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">E-Mail Adresse</div>
+                            <div class="settings-item-subtitle">julian@example.com</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                    <div class="settings-item" onclick="showToast('Telefon ändern')">
+                        <div class="settings-item-icon green">📱</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Telefonnummer</div>
+                            <div class="settings-item-subtitle">+49 123 456789</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                    <div class="settings-item" onclick="showToast('Passwort ändern')">
+                        <div class="settings-item-icon orange">🔐</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Passwort ändern</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="settings-section-title">Privatsphäre</div>
+                <div class="settings-group">
+                    <div class="settings-item" onclick="showToast('Blockierte Nutzer')">
+                        <div class="settings-item-icon red">🚫</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Blockierte Nutzer</div>
+                            <div class="settings-item-subtitle">2 blockierte Nutzer</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-item-icon blue">👁️</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Profil-Sichtbarkeit</div>
+                            <div class="settings-item-subtitle">Öffentlich</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-item-icon purple">📍</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Standort teilen</div>
+                        </div>
+                        <div class="settings-toggle active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="settings-section-title">Benachrichtigungen</div>
+                <div class="settings-group">
+                    <div class="settings-item" onclick="showToast('Benachrichtigungseinstellungen')">
+                        <div class="settings-item-icon orange">🔔</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Benachrichtigungen</div>
+                            <div class="settings-item-subtitle">Push, E-Mail, In-App</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-item-icon green">🔇</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Ruhezeiten (22:00 - 08:00)</div>
+                        </div>
+                        <div class="settings-toggle active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="settings-section-title">Zugänglichkeit</div>
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <div class="settings-item-icon blue">🔤</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Große Schrift</div>
+                        </div>
+                        <div class="settings-toggle" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-item-icon purple">🎨</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Hoher Kontrast</div>
+                        </div>
+                        <div class="settings-toggle" onclick="toggleSwitch(this)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="settings-section-title">Über</div>
+                <div class="settings-group">
+                    <div class="settings-item" onclick="showToast('Vanlife Connect v1.0.0')">
+                        <div class="settings-item-icon gray">ℹ️</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Version</div>
+                            <div class="settings-item-subtitle">1.0.0 (Build 123)</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                    <div class="settings-item" onclick="showToast('Impressum')">
+                        <div class="settings-item-icon gray">📄</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">Impressum</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                    <div class="settings-item" onclick="showToast('AGB')">
+                        <div class="settings-item-icon gray">⚖️</div>
+                        <div class="settings-item-content">
+                            <div class="settings-item-title">AGB & Datenschutz</div>
+                        </div>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                </div>
+            </div>
+            <div style="padding: 24px 16px;">
+                <button onclick="showToast('Abgemeldet')" style="width: 100%; padding: 14px; background: #ff4444; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer;">Abmelden</button>
+            </div>
+        </div>
     </div>
 
-    <!-- SAVED SPOTS PAGE 
-         Beschreibung: Gespeicherte Stellplätze und Orte:
-         - Liste aller gespeicherten Spots mit Karte-Vorschau
-         - Kategorien: Übernachtung, Schwimmen, Aussicht, Wasser/Tanken
-         - Offline-Verfügbarkeit markieren
-         - Notizen zu jedem Spot hinzufügen
-         - Navigation starten (Google/Apple Maps)
-    -->
-    <div class="saved-spots-page" id="savedSpotsPage" style="display:none;">
-        <!-- TODO: Implementieren -->
+    <!-- SAVED SPOTS PAGE -->
+    <div class="saved-spots-page" id="savedSpotsPage">
+        <div class="saved-spots-header">
+            <button class="back-btn" onclick="closeSavedSpots()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h2>📍 Gespeicherte Spots</h2>
+        </div>
+        <div class="saved-spots-filter">
+            <button class="saved-spots-filter-btn active" onclick="filterSavedSpots('all', this)">Alle</button>
+            <button class="saved-spots-filter-btn" onclick="filterSavedSpots('overnight', this)">🌙 Übernachtung</button>
+            <button class="saved-spots-filter-btn" onclick="filterSavedSpots('swimming', this)">🏊 Schwimmen</button>
+            <button class="saved-spots-filter-btn" onclick="filterSavedSpots('view', this)">🌄 Aussicht</button>
+            <button class="saved-spots-filter-btn" onclick="filterSavedSpots('water', this)">💧 Wasser/Tanken</button>
+        </div>
+        <div class="saved-spots-list" id="savedSpotsList">
+            <div class="saved-spot-card" data-category="overnight water" data-spot-id="1">
+                <div class="saved-spot-delete" onclick="deleteSavedSpot(1)">🗑️</div>
+                <div class="saved-spot-content" ontouchstart="handleTouchStart(this)" ontouchmove="handleTouchMove(this)" ontouchend="handleTouchEnd(this)" onclick="openSpotDetail(1)">
+                    <div class="saved-spot-header">
+                        <div class="saved-spot-icon">🏕️</div>
+                        <div class="saved-spot-info">
+                            <div class="saved-spot-name">Waldparkplatz Grunewald</div>
+                            <div class="saved-spot-location">📍 Berlin, Deutschland</div>
+                            <div class="saved-spot-rating">⭐ 4.8 (127 Bewertungen)</div>
+                        </div>
+                    </div>
+                    <div class="saved-spot-tags">
+                        <span class="saved-spot-tag">🌙 Übernachtung</span>
+                        <span class="saved-spot-tag">💧 Wasser</span>
+                        <span class="saved-spot-tag">📶 WLAN</span>
+                    </div>
+                    <div class="saved-spot-note">💬 Super ruhig ab 22 Uhr. Café gegenüber hat WLAN-Passwort: Vanlife2024</div>
+                </div>
+            </div>
+            <div class="saved-spot-card" data-category="swimming view" data-spot-id="2">
+                <div class="saved-spot-delete" onclick="deleteSavedSpot(2)">🗑️</div>
+                <div class="saved-spot-content" ontouchstart="handleTouchStart(this)" ontouchmove="handleTouchMove(this)" ontouchend="handleTouchEnd(this)" onclick="openSpotDetail(2)">
+                    <div class="saved-spot-header">
+                        <div class="saved-spot-icon">🏖️</div>
+                        <div class="saved-spot-info">
+                            <div class="saved-spot-name">Schluchsee Strandparkplatz</div>
+                            <div class="saved-spot-location">📍 Schluchsee, Deutschland</div>
+                            <div class="saved-spot-rating">⭐ 4.9 (89 Bewertungen)</div>
+                        </div>
+                    </div>
+                    <div class="saved-spot-tags">
+                        <span class="saved-spot-tag">🏊 Schwimmen</span>
+                        <span class="saved-spot-tag">🌄 Aussicht</span>
+                        <span class="saved-spot-tag">🌙 Übernachtung</span>
+                    </div>
+                    <div class="saved-spot-note">💬 Morgens um 6 perfekt für Fotos vom See! Wasserqualität top.</div>
+                </div>
+            </div>
+            <div class="saved-spot-card" data-category="water" data-spot-id="3">
+                <div class="saved-spot-delete" onclick="deleteSavedSpot(3)">🗑️</div>
+                <div class="saved-spot-content" ontouchstart="handleTouchStart(this)" ontouchmove="handleTouchMove(this)" ontouchend="handleTouchEnd(this)" onclick="openSpotDetail(3)">
+                    <div class="saved-spot-header">
+                        <div class="saved-spot-icon">⛽</div>
+                        <div class="saved-spot-info">
+                            <div class="saved-spot-name">Aral Tankstelle Avus</div>
+                            <div class="saved-spot-location">📍 Berlin, Deutschland</div>
+                            <div class="saved-spot-rating">⭐ 4.2 (45 Bewertungen)</div>
+                        </div>
+                    </div>
+                    <div class="saved-spot-tags">
+                        <span class="saved-spot-tag">💧 Frischwasser</span>
+                        <span class="saved-spot-tag">⚡ Strom</span>
+                        <span class="saved-spot-tag">🚿 Dusche</span>
+                    </div>
+                    <div class="saved-spot-note">💬 Kostenloser Wasseranschluss hinten am Gebäude. Personal super nett!</div>
+                </div>
+            </div>
+            <div class="saved-spot-card" data-category="view overnight" data-spot-id="4">
+                <div class="saved-spot-delete" onclick="deleteSavedSpot(4)">🗑️</div>
+                <div class="saved-spot-content" ontouchstart="handleTouchStart(this)" ontouchmove="handleTouchMove(this)" ontouchend="handleTouchEnd(this)" onclick="openSpotDetail(4)">
+                    <div class="saved-spot-header">
+                        <div class="saved-spot-icon">🌅</div>
+                        <div class="saved-spot-info">
+                            <div class="saved-spot-name">Säntis Aussichtspunkt</div>
+                            <div class="saved-spot-location">📍 Appenzell, Schweiz</div>
+                            <div class="saved-spot-rating">⭐ 5.0 (203 Bewertungen)</div>
+                        </div>
+                    </div>
+                    <div class="saved-spot-tags">
+                        <span class="saved-spot-tag">🌄 Aussicht</span>
+                        <span class="saved-spot-tag">🏔️ Berge</span>
+                        <span class="saved-spot-tag">📸 Instagram</span>
+                    </div>
+                    <div class="saved-spot-note">💬 Sonnenaufgang hier ist unbezahlbar! Kalt im Winter aber wert.</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- MY POSTS PAGE 
-         Beschreibung: Eigene Beiträge im Feed-Format:
-         - Alle eigenen Posts chronologisch
-         - Filter: Alle, Spots, Tipps, Hilfe
-         - Statistiken: Views, Likes, Kommentare pro Post
-         - Bearbeiten/Löschen Optionen
-         - Entwürfe (nicht veröffentlichte Posts)
-    -->
-    <div class="my-posts-page" id="myPostsPage" style="display:none;">
-        <!-- TODO: Implementieren -->
+    <!-- MY POSTS PAGE -->
+    <div class="my-posts-page" id="myPostsPage">
+        <div class="my-posts-header">
+            <button class="back-btn" onclick="closeMyPosts()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h2>📝 Meine Posts</h2>
+        </div>
+        <div class="my-posts-tabs">
+            <button class="my-posts-tab active" onclick="filterMyPosts('all', this)">Alle</button>
+            <button class="my-posts-tab" onclick="filterMyPosts('spots', this)">📍 Spots</button>
+            <button class="my-posts-tab" onclick="filterMyPosts('tipps', this)">💡 Tipps</button>
+            <button class="my-posts-tab" onclick="filterMyPosts('hilfe', this)">🆘 Hilfe</button>
+        </div>
+        <div class="my-posts-list" id="myPostsList">
+            <div class="my-post-card" data-channel="spots">
+                <div class="my-post-header">
+                    <span class="my-post-channel">📍 Spots</span>
+                    <span class="my-post-date">Vor 2 Tagen</span>
+                </div>
+                <div class="my-post-content">Entdeckt: Ruhiger Parkplatz am Tegeler See mit schönem Blick aufs Wasser. Am Wochenende etwas voll aber unter der Woche perfekt für Home Office! 🚐💻</div>
+                <div class="my-post-stats">
+                    <span class="my-post-stat">👁️ 234 Aufrufe</span>
+                    <span class="my-post-stat">❤️ 18 Likes</span>
+                    <span class="my-post-stat">💬 5 Kommentare</span>
+                </div>
+                <div class="my-post-actions">
+                    <button class="my-post-action" onclick="editMyPost(1)">✏️ Bearbeiten</button>
+                    <button class="my-post-action" onclick="deleteMyPost(1)">🗑️ Löschen</button>
+                </div>
+            </div>
+            <div class="my-post-card" data-channel="tipps">
+                <div class="my-post-header">
+                    <span class="my-post-channel">💡 Tipps</span>
+                    <span class="my-post-date">Vor 5 Tagen</span>
+                </div>
+                <div class="my-post-content">Pro-Tipp für kalte Nächte: Eine Wärmflasche im Fußbereich des Schlafsacks verändert alles! Kostet fast nichts und hält die ganze Nacht warm. 🔥</div>
+                <div class="my-post-stats">
+                    <span class="my-post-stat">👁️ 567 Aufrufe</span>
+                    <span class="my-post-stat">❤️ 89 Likes</span>
+                    <span class="my-post-stat">💬 23 Kommentare</span>
+                </div>
+                <div class="my-post-actions">
+                    <button class="my-post-action" onclick="editMyPost(2)">✏️ Bearbeiten</button>
+                    <button class="my-post-action" onclick="deleteMyPost(2)">🗑️ Löschen</button>
+                </div>
+            </div>
+            <div class="my-post-card" data-channel="hilfe">
+                <div class="my-post-header">
+                    <span class="my-post-channel">🆘 Hilfe</span>
+                    <span class="my-post-date">Vor 1 Woche</span>
+                </div>
+                <div class="my-post-content">Hat jemand Erfahrung mit der Gas-Heizung im VW California? Meine piept seit heute Morgen alle 30 Sekunden und ich finde die Anleitung nicht... Hilfe! 😅</div>
+                <div class="my-post-stats">
+                    <span class="my-post-stat">👁️ 189 Aufrufe</span>
+                    <span class="my-post-stat">❤️ 12 Likes</span>
+                    <span class="my-post-stat">💬 8 Kommentare</span>
+                </div>
+                <div class="my-post-actions">
+                    <button class="my-post-action" onclick="editMyPost(3)">✏️ Bearbeiten</button>
+                    <button class="my-post-action" onclick="deleteMyPost(3)">🗑️ Löschen</button>
+                </div>
+            </div>
+            <div class="my-post-card" data-channel="spots">
+                <div class="my-post-header">
+                    <span class="my-post-channel">📍 Spots</span>
+                    <span class="my-post-date">Vor 2 Wochen</span>
+                </div>
+                <div class="my-post-content">Wochenend-Trip an die Ostsee! Dieser Parkplatz in Warnemünde ist Gold wert - direkt am Strand, Toiletten in 2 Minuten zu Fuß. Nur am Samstag sehr voll.</div>
+                <div class="my-post-stats">
+                    <span class="my-post-stat">👁️ 445 Aufrufe</span>
+                    <span class="my-post-stat">❤️ 56 Likes</span>
+                    <span class="my-post-stat">💬 14 Kommentare</span>
+                </div>
+                <div class="my-post-actions">
+                    <button class="my-post-action" onclick="editMyPost(4)">✏️ Bearbeiten</button>
+                    <button class="my-post-action" onclick="deleteMyPost(4)">🗑️ Löschen</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- SPOT DETAIL PAGE 
-         Beschreibung: Detailansicht eines einzelnen Spots:
-         - Große Bilder (Carousel)
-         - Bewertung (Sterne + Anzahl)
-         - Beschreibung und Details (Preis, Ausstattung, Regeln)
-         - Karte mit exakter Position
-         - Aktuelle Belegung (Live von anderen Nutzern)
-         - Kommentare/Bewertungen anderer
-         - "Ich bin hier" Check-in Button
-         - Speichern/Teilen
-    -->
-    <div class="spot-detail-page" id="spotDetailPage" style="display:none;">
-        <!-- TODO: Implementieren -->
+    <!-- SPOT DETAIL PAGE -->
+    <div class="spot-detail-page" id="spotDetailPage">
+        <div class="spot-detail-carousel" id="spotDetailCarousel">
+            <div class="spot-detail-header">
+                <button class="spot-detail-back" onclick="closeSpotDetail()">←</button>
+                <button class="spot-detail-actions" onclick="showToast('Mehr Optionen')">⋯</button>
+            </div>
+            <div id="spotDetailEmoji" style="font-size: 80px;">🏕️</div>
+            <div class="spot-detail-dots">
+                <div class="spot-detail-dot active"></div>
+                <div class="spot-detail-dot"></div>
+                <div class="spot-detail-dot"></div>
+            </div>
+        </div>
+        <div class="spot-detail-content">
+            <h1 class="spot-detail-name" id="spotDetailName">Waldparkplatz Grunewald</h1>
+            <div class="spot-detail-rating">
+                <span class="spot-detail-stars">⭐⭐⭐⭐⭐</span>
+                <span class="spot-detail-reviews" id="spotDetailReviews">4.8 (127 Bewertungen)</span>
+            </div>
+            <div class="spot-detail-section">
+                <h3 class="spot-detail-section-title">Beschreibung</h3>
+                <p class="spot-detail-description" id="spotDetailDescription">Ruhiger Waldparkplatz am Rande des Grunewalds. Perfekt für eine Übernachtung oder als Basis für Wanderungen. Das Café gegenüber bietet kostenloses WLAN.</p>
+            </div>
+            <div class="spot-detail-section">
+                <h3 class="spot-detail-section-title">Details</h3>
+                <div class="spot-detail-info-grid">
+                    <div class="spot-detail-info-item">
+                        <div class="spot-detail-info-label">Preis</div>
+                        <div class="spot-detail-info-value">Kostenlos</div>
+                    </div>
+                    <div class="spot-detail-info-item">
+                        <div class="spot-detail-info-label">Max. Höhe</div>
+                        <div class="spot-detail-info-value">3.2m</div>
+                    </div>
+                    <div class="spot-detail-info-item">
+                        <div class="spot-detail-info-label">Plätze</div>
+                        <div class="spot-detail-info-value">~20</div>
+                    </div>
+                    <div class="spot-detail-info-item">
+                        <div class="spot-detail-info-label">Zufahrt</div>
+                        <div class="spot-detail-info-value">Asphalt</div>
+                    </div>
+                </div>
+            </div>
+            <div class="spot-detail-section">
+                <h3 class="spot-detail-section-title">Ausstattung</h3>
+                <div class="spot-detail-amenities" id="spotDetailAmenities">
+                    <span class="spot-detail-amenity">💧 Wasser</span>
+                    <span class="spot-detail-amenity">⚡ Strom</span>
+                    <span class="spot-detail-amenity">📶 WLAN</span>
+                    <span class="spot-detail-amenity">🚻 WC</span>
+                    <span class="spot-detail-amenity">🗑️ Müll</span>
+                </div>
+            </div>
+            <div class="spot-detail-section">
+                <h3 class="spot-detail-section-title">Aktuelle Belegung</h3>
+                <div class="spot-detail-checkins">
+                    <div class="spot-detail-checkin-avatars">
+                        <div class="spot-detail-checkin-avatar">🚐</div>
+                        <div class="spot-detail-checkin-avatar">🏕️</div>
+                        <div class="spot-detail-checkin-avatar">🌲</div>
+                    </div>
+                    <span class="spot-detail-checkin-text">3 Vanlifer sind gerade hier</span>
+                </div>
+            </div>
+            <div class="spot-detail-section">
+                <h3 class="spot-detail-section-title">Karte</h3>
+                <div class="spot-detail-map">
+                    <img src="https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/13.2615,52.4665,14,0/400x200?access_token=pk.placeholder" alt="Karte" onerror="this.style.background='#e0e0e0'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center'; this.innerHTML='🗺️ Kartenansicht';">
+                </div>
+            </div>
+            <div class="spot-detail-section">
+                <h3 class="spot-detail-section-title">Kommentare</h3>
+                <div style="background: #f8f9fa; padding: 14px; border-radius: 12px; margin-bottom: 10px;">
+                    <div style="font-weight: 600; color: #FF8F00; font-size: 14px;">WanderVan_89</div>
+                    <div style="font-size: 14px; color: #666; margin-top: 4px;">Super Spot! WLAN funktioniert echt gut für Zoom-Calls.</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 4px;">vor 2 Tagen</div>
+                </div>
+                <div style="background: #f8f9fa; padding: 14px; border-radius: 12px;">
+                    <div style="font-weight: 600; color: #FF8F00; font-size: 14px;">NomadNina</div>
+                    <div style="font-size: 14px; color: #666; margin-top: 4px;">Wochenende ist leider voll, aber unter der Woche perfekt!</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 4px;">vor 1 Woche</div>
+                </div>
+            </div>
+        </div>
+        <div class="spot-detail-bottom">
+            <button class="spot-detail-btn spot-detail-btn-secondary" onclick="toggleSaveSpot()">
+                <span id="saveSpotIcon">🔖</span> Speichern
+            </button>
+            <button class="spot-detail-btn spot-detail-btn-primary" onclick="checkInToSpot()">
+                📍 Ich bin hier
+            </button>
+        </div>
     </div>
 
     <!-- CHAT DETAIL PAGE 
@@ -2752,6 +3790,147 @@
          * unfollowUser(userId) - Entfolgt Nutzer
          * searchInList(query) - Sucht in der Liste
          */
+
+        // ============================================
+        // PRIORITY 1: SETTINGS PAGE FUNCTIONS
+        // ============================================
+        function openSettings() {
+            document.getElementById('settingsPage').classList.add('active');
+        }
+        function closeSettings() {
+            document.getElementById('settingsPage').classList.remove('active');
+        }
+        function toggleSwitch(toggle) {
+            toggle.classList.toggle('active');
+        }
+
+        // ============================================
+        // PRIORITY 1: SAVED SPOTS FUNCTIONS
+        // ============================================
+        let touchStartX = 0;
+        let currentSwipeElement = null;
+
+        function openSavedSpots() {
+            document.getElementById('savedSpotsPage').classList.add('active');
+        }
+        function closeSavedSpots() {
+            document.getElementById('savedSpotsPage').classList.remove('active');
+        }
+        function filterSavedSpots(category, btn) {
+            document.querySelectorAll('.saved-spots-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const spots = document.querySelectorAll('.saved-spot-card');
+            spots.forEach(spot => {
+                if (category === 'all' || spot.dataset.category.includes(category)) {
+                    spot.style.display = 'block';
+                } else {
+                    spot.style.display = 'none';
+                }
+            });
+        }
+        function handleTouchStart(element) {
+            touchStartX = event.touches[0].clientX;
+            currentSwipeElement = element.parentElement;
+        }
+        function handleTouchMove(element) {
+            if (!currentSwipeElement) return;
+            const touchX = event.touches[0].clientX;
+            const diff = touchStartX - touchX;
+            if (diff > 0 && diff < 100) {
+                element.style.transform = `translateX(-${diff}px)`;
+            }
+        }
+        function handleTouchEnd(element) {
+            if (!currentSwipeElement) return;
+            const touchX = event.changedTouches[0].clientX;
+            const diff = touchStartX - touchX;
+            if (diff > 60) {
+                element.style.transform = 'translateX(-80px)';
+            } else {
+                element.style.transform = 'translateX(0)';
+            }
+            currentSwipeElement = null;
+        }
+        function deleteSavedSpot(spotId) {
+            const card = document.querySelector(`.saved-spot-card[data-spot-id="${spotId}"]`);
+            card.style.transform = 'translateX(-100%)';
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.remove();
+                showToast('Spot entfernt');
+            }, 300);
+        }
+
+        // ============================================
+        // PRIORITY 1: MY POSTS FUNCTIONS
+        // ============================================
+        function openMyPosts() {
+            document.getElementById('myPostsPage').classList.add('active');
+        }
+        function closeMyPosts() {
+            document.getElementById('myPostsPage').classList.remove('active');
+        }
+        function filterMyPosts(filter, btn) {
+            document.querySelectorAll('.my-posts-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            const posts = document.querySelectorAll('.my-post-card');
+            posts.forEach(post => {
+                if (filter === 'all' || post.dataset.channel === filter) {
+                    post.style.display = 'block';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+        function editMyPost(postId) {
+            showToast(`Post ${postId} bearbeiten`);
+        }
+        function deleteMyPost(postId) {
+            if (confirm('Post wirklich löschen?')) {
+                const card = event.target.closest('.my-post-card');
+                card.style.opacity = '0';
+                setTimeout(() => card.remove(), 300);
+                showToast('Post gelöscht');
+            }
+        }
+
+        // ============================================
+        // PRIORITY 1: SPOT DETAIL FUNCTIONS
+        // ============================================
+        function openSpotDetail(spotId) {
+            document.getElementById('spotDetailPage').classList.add('active');
+        }
+        function closeSpotDetail() {
+            document.getElementById('spotDetailPage').classList.remove('active');
+        }
+        function toggleSaveSpot() {
+            const icon = document.getElementById('saveSpotIcon');
+            if (icon.textContent === '🔖') {
+                icon.textContent = '📌';
+                showToast('Spot gespeichert');
+            } else {
+                icon.textContent = '🔖';
+                showToast('Spot entfernt');
+            }
+        }
+        function checkInToSpot() {
+            showToast('📍 Eingecheckt! Andere Vanlifer sehen jetzt, dass du hier bist.');
+        }
+
+        // Make saved spots clickable (if not swiped)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.saved-spot-content').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    if (this.style.transform === 'translateX(-80px)' || 
+                        this.style.transform.includes('-80px')) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    const spotId = this.closest('.saved-spot-card').dataset.spotId;
+                    openSpotDetail(spotId);
+                });
+            });
+        });
     </script>
 </body>
 </html>
