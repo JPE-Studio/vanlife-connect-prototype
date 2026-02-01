@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vanlife Connect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #1a1a2e;
+            color: white;
+            padding: 8px 16px 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            font-size: 24px;
+        }
+
+        .radius-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .location-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* Feed */
+        .feed {
+            padding: 12px;
+            padding-bottom: 100px;
+        }
+
+        /* Post Card */
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .post-header {
+            padding: 14px 16px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .author-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .author-info .time {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .distance-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .distance-badge.near {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .post-content {
+            padding: 0 16px 14px;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            border-top: 1px solid #f0f0f0;
+            gap: 20px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            padding: 6px 0;
+        }
+
+        .action-btn.liked {
+            color: #e91e63;
+        }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Comments Preview */
+        .comments-preview {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .comment-teaser {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-teaser-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ddd;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 20px;
+            border-top: 1px solid #e0e0e0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 4px 12px;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            max-height: 90vh;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal.active {
+            transform: translateY(0);
+        }
+
+        /* Chat Comments */
+        .chat-header {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f5f5f5;
+            max-height: 60vh;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-end;
+        }
+
+        .message.own {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .message:not(.own) .message-bubble {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            margin-left: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .message.own .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-author {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+            margin-left: 8px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message.own .message-time {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .chat-input-container {
+            padding: 12px 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Create Post Modal */
+        .create-post-content {
+            padding: 20px 16px;
+        }
+
+        .create-post-textarea {
+            width: 100%;
+            min-height: 120px;
+            border: none;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .create-post-textarea::placeholder {
+            color: #999;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .create-post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .post-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .post-btn:disabled {
+            background: #ccc;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <span>9:41</span>
+        <span>📶 5G 🔋</span>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <div class="logo">
+                <span class="logo-icon">🚐</span>
+                Vanlife Connect
+            </div>
+            <div class="radius-badge">
+                📍 5 km
+            </div>
+        </div>
+        <div class="location-bar">
+            <span>📍</span>
+            <span>In der Nähe von Kreuzberg, Berlin</span>
+        </div>
+    </div>
+
+    <!-- Feed -->
+    <div class="feed" id="feed">
+        <!-- Post 1 -->
+        <div class="post-card" onclick="openComments(1)">
+            <div class="post-header">
+                <div class="post-author">
+                    <div class="avatar">🚐</div>
+                    <div class="author-info">
+                        <h4>WanderVan_89</h4>
+                        <div class="time">vor 23 Min.</div>
+                    </div>
+                </div>
+                <span class="distance-badge near">📍 200m</span>
+            </div>
+            <div class="post-content">
+                Gerade am Landwehrkanal angekommen! Mega schöner Spot zum Arbeiten, WLAN vom Café gegenüber reicht für Zoom-Calls. Jemand Lust auf einen Kaffee? ☕️
+            </div>
+            <div class="post-actions">
+                <button class="action-btn" onclick="toggleLike(this, event)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <span>12</span>
+                </button>
+                <button class="action-btn" onclick="openComments(1, event)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <span>4</span>
+                </button>
+                <button class="action-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="comments-preview">
+                <div class="comment-teaser">
+                    <span>💬</span>
+                    <span style="color: #667eea; font-weight: 500;">NomadNina:</span>
+                    <span>Welches Café genau? Bin gleich da! ☕️</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post 2 -->
+        <div class="post-card" onclick="openComments(2)">
+            <div class="post-header">
+                <div class="post-author">
+                    <div class="avatar">🏕️</div>
+                    <div class="author-info">
+                        <h4>CamperLife_Sarah</h4>
+                        <div class="time">vor 1 Std.</div>
+                    </div>
+                </div>
+                <span class="distance-badge">📍 500m</span>
+            </div>
+            <div class="post-content">
+                Hat jemand Erfahrung mit dem Stellplatz am Tempelhofer Feld? Ist es safe über Nacht? Habe mein Fahrrad dabei und bin etwas vorsichtig 😅
+            </div>
+            <div class="post-actions">
+                <button class="action-btn liked" onclick="toggleLike(this, event)">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <span>28</span>
+                </button>
+                <button class="action-btn" onclick="openComments(2, event)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <span>8</span>
+                </button>
+                <button class="action-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="comments-preview">
+                <div class="comment-teaser">
+                    <span>💬</span>
+                    <span style="color: #667eea; font-weight: 500;">BerlinVan_Dave:</span>
+                    <span>Ja, super safe! Polizei fährt regelmäßig...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post 3 -->
+        <div class="post-card" onclick="openComments(3)">
+            <div class="post-header">
+                <div class="post-author">
+                    <div class="avatar">🌲</div>
+                    <div class="author-info">
+                        <h4>ForestVan_Tom</h4>
+                        <div class="time">vor 3 Std.</div>
+                    </div>
+                </div>
+                <span class="distance-badge">📍 1.2 km</span>
+            </div>
+            <div class="post-content">
+                Tipp für alle die Richtung Grunewald wollen: Die Tankstelle an der Avus hat einen kostenlosen Wasseranschluss hinten am Gebäude. Super nette Mitarbeiter! 💧
+            </div>
+            <div class="post-actions">
+                <button class="action-btn" onclick="toggleLike(this, event)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <span>45</span>
+                </button>
+                <button class="action-btn" onclick="openComments(3, event)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <span>12</span>
+                </button>
+                <button class="action-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" onclick="openCreatePost()">+</button>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <button class="nav-item active">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <span>Feed</span>
+        </button>
+        <button class="nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <span>Suche</span>
+        </button>
+        <button class="nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+            <span>Favoriten</span>
+        </button>
+        <button class="nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span>Profil</span>
+        </button>
+    </div>
+
+    <!-- Comments Modal -->
+    <div class="modal-overlay" id="commentsOverlay" onclick="closeComments(event)"></div>
+    <div class="modal" id="commentsModal">
+        <div class="chat-header">
+            <h3>Kommentare</h3>
+            <button class="close-btn" onclick="closeComments()">×</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages for Post 1 -->
+            <div class="message" data-post="1">
+                <div class="message-bubble">
+                    Welches Café genau? Bin gleich da! ☕️
+                    <div class="message-time">12:15</div>
+                </div>
+            </div>
+            <div class="message own" data-post="1">
+                <div class="message-bubble">
+                    Das kleine Blaue direkt am Kanal! Kannst nicht verfehlen 👍
+                    <div class="message-time">12:18</div>
+                </div>
+            </div>
+            <div class="message" data-post="1">
+                <div class="message-bubble">
+                    Perfekt, danke! Bis gleich 😊
+                    <div class="message-time">12:19</div>
+                </div>
+            </div>
+            <div class="message" data-post="1">
+                <div class="message-bubble">
+                    Ich komm auch vorbei, hab noch 10 Minuten Fahrt!
+                    <div class="message-time">12:21</div>
+                </div>
+            </div>
+
+            <!-- Messages for Post 2 -->
+            <div class="message" data-post="2">
+                <div class="message-bubble">
+                    Ja, super safe! Polizei fährt regelmäßig vorbei und es sind immer andere Vanlifer da. Fahrrad lieber im Van lassen oder anschließen 👍
+                    <div class="message-time">11:45</div>
+                </div>
+            </div>
+            <div class="message own" data-post="2">
+                <div class="message-bubble">
+                    Danke für die Info! Dann probiere ich es heute Nacht aus
+                    <div class="message-time">11:52</div>
+                </div>
+            </div>
+            <div class="message" data-post="2">
+                <div class="message-bubble">
+                    Ich bin grad auch da, können uns gerne kennenlernen!
+                    <div class="message-time">12:05</div>
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <input type="text" class="chat-input" placeholder="Nachricht schreiben...">
+                <button class="send-btn">
+                    <svg fill="none" stroke="white" viewBox="0 0 24 24" width="20" height="20" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Post Modal -->
+    <div class="modal-overlay" id="createPostOverlay" onclick="closeCreatePost(event)"></div>
+    <div class="modal" id="createPostModal">
+        <div class="chat-header">
+            <h3>Neuer Post</h3>
+            <button class="close-btn" onclick="closeCreatePost()">×</button>
+        </div>
+        <div class="create-post-content">
+            <textarea class="create-post-textarea" placeholder="Was ist los in deiner Nähe?" maxlength="500" oninput="updateCharCount(this)"></textarea>
+            <div class="char-count">0/500</div>
+        </div>
+        <div class="create-post-actions">
+            <span style="font-size: 13px; color: #666;">📍 Wird in 5km Radius geteilt</span>
+            <button class="post-btn" onclick="submitPost()">Posten</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPostId = null;
+
+        function toggleLike(btn, event) {
+            event.stopPropagation();
+            const isLiked = btn.classList.contains('liked');
+            const span = btn.querySelector('span');
+            let count = parseInt(span.textContent);
+            
+            if (isLiked) {
+                btn.classList.remove('liked');
+                btn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg><span>${count - 1}</span>`;
+            } else {
+                btn.classList.add('liked');
+                btn.innerHTML = `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg><span>${count + 1}</span>`;
+            }
+        }
+
+        function openComments(postId, event) {
+            if (event) event.stopPropagation();
+            currentPostId = postId;
+            
+            // Filter messages for this post
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(msg => {
+                if (parseInt(msg.dataset.post) === postId) {
+                    msg.style.display = 'flex';
+                } else {
+                    msg.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('commentsOverlay').classList.add('active');
+            document.getElementById('commentsModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeComments(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('commentsOverlay').classList.remove('active');
+            document.getElementById('commentsModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function openCreatePost() {
+            document.getElementById('createPostOverlay').classList.add('active');
+            document.getElementById('createPostModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreatePost(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('createPostOverlay').classList.remove('active');
+            document.getElementById('createPostModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateCharCount(textarea) {
+            const count = textarea.value.length;
+            document.querySelector('.char-count').textContent = `${count}/500`;
+            document.querySelector('.post-btn').disabled = count === 0;
+        }
+
+        function submitPost() {
+            const textarea = document.querySelector('.create-post-textarea');
+            if (textarea.value.trim()) {
+                alert('Post würde erstellt: ' + textarea.value.substring(0, 50) + '...');
+                textarea.value = '';
+                updateCharCount(textarea);
+                closeCreatePost();
+            }
+        }
+
+        // Nav item click
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
