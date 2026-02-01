@@ -13,14 +13,14 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f5f5;
+            background: #FFF8F0;
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
         }
 
         /* Status Bar */
         .status-bar {
-            background: #1a1a2e;
+            background: #FF8F00;
             color: white;
             padding: 8px 16px 4px;
             display: flex;
@@ -29,52 +29,44 @@
             font-size: 12px;
         }
 
-        /* Header */
+        /* Header - Material Design Warm */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #FF8F00;
             color: white;
             padding: 12px 16px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
         }
 
         .logo {
-            font-size: 20px;
+            font-size: 28px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
         }
 
         .logo-icon {
-            font-size: 24px;
+            font-size: 32px;
         }
 
         .radius-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 12px;
+            background: rgba(255,255,255,0.25);
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 13px;
             display: flex;
             align-items: center;
             gap: 4px;
-        }
-
-        .location-bar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            opacity: 0.9;
+            font-weight: 500;
         }
 
         /* Feed */
@@ -109,11 +101,12 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
+            box-shadow: 0 2px 4px rgba(255,143,0,0.3);
         }
 
         .author-info h4 {
@@ -170,7 +163,7 @@
         }
 
         .action-btn.liked {
-            color: #e91e63;
+            color: #FF6F00;
         }
 
         .action-btn svg {
@@ -212,12 +205,12 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #FF8F00;
             color: white;
             border: none;
             font-size: 28px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(255,143,0,0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -252,7 +245,7 @@
         }
 
         .nav-item.active {
-            color: #667eea;
+            color: #FF8F00;
         }
 
         .nav-item svg {
@@ -357,7 +350,7 @@
         }
 
         .message.own .message-bubble {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
             color: white;
             border-bottom-right-radius: 4px;
         }
@@ -405,7 +398,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #FF8F00;
             color: white;
             border: none;
             cursor: pointer;
@@ -449,7 +442,7 @@
         }
 
         .post-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #FF8F00;
             color: white;
             border: none;
             padding: 10px 24px;
@@ -499,15 +492,10 @@
         <div class="header-top">
             <div class="logo">
                 <span class="logo-icon">🚐</span>
-                Vanlife Connect
             </div>
             <div class="radius-badge">
                 📍 5 km
             </div>
-        </div>
-        <div class="location-bar">
-            <span>📍</span>
-            <span>In der Nähe von Kreuzberg, Berlin</span>
         </div>
     </div>
 
@@ -550,7 +538,7 @@
             <div class="comments-preview">
                 <div class="comment-teaser">
                     <span>💬</span>
-                    <span style="color: #667eea; font-weight: 500;">NomadNina:</span>
+                    <span style="color: #FF8F00; font-weight: 500;">NomadNina:</span>
                     <span>Welches Café genau? Bin gleich da! ☕️</span>
                 </div>
             </div>
@@ -593,7 +581,7 @@
             <div class="comments-preview">
                 <div class="comment-teaser">
                     <span>💬</span>
-                    <span style="color: #667eea; font-weight: 500;">BerlinVan_Dave:</span>
+                    <span style="color: #FF8F00; font-weight: 500;">BerlinVan_Dave:</span>
                     <span>Ja, super safe! Polizei fährt regelmäßig...</span>
                 </div>
             </div>
