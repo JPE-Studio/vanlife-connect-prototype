@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vanlife Connect</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet Heatmap Plugin -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <style>
         * {
             margin: 0;
@@ -797,6 +803,148 @@
             margin-top: 4px;
         }
 
+        /* MAP PAGE */
+        .map-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 90px;
+            background: #FFF8F0;
+            z-index: 100;
+        }
+
+        .map-page.active {
+            display: block;
+        }
+
+        .map-header {
+            background: #FF8F00;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            position: relative;
+            z-index: 1001;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .map-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .map-header p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        #mapContainer {
+            width: 100%;
+            height: calc(100% - 70px);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .map-info {
+            position: absolute;
+            bottom: 20px;
+            left: 16px;
+            right: 16px;
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1002;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .map-info.active {
+            display: block;
+        }
+
+        .map-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .map-post-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .map-post-item:last-child {
+            border-bottom: none;
+        }
+
+        .map-post-author {
+            font-weight: 600;
+            color: #FF8F00;
+            font-size: 14px;
+        }
+
+        .map-post-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .map-post-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .map-close-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .map-legend {
+            position: absolute;
+            top: 80px;
+            right: 16px;
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1001;
+            font-size: 12px;
+        }
+
+        .map-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .map-legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.high { background: #FF4500; }
+        .legend-dot.medium { background: #FFA500; }
+        .legend-dot.low { background: #FFD700; }
+
         /* PROFILE PAGE */
         .profile-page {
             display: none;
@@ -1423,6 +1571,36 @@
             </div>
         </div>
 
+        <!-- MAP PAGE -->
+        <div class="map-page" id="mapPage">
+            <div class="map-header">
+                <h2>🗺️ Karte</h2>
+                <p>Tipp auf die Karte, um einen Erkundungspin zu setzen</p>
+            </div>
+            <div id="mapContainer"></div>
+            
+            <div class="map-legend">
+                <div class="map-legend-item">
+                    <div class="legend-dot high"></div>
+                    <span>Viel los</span>
+                </div>
+                <div class="map-legend-item">
+                    <div class="legend-dot medium"></div>
+                    <span>Mittel</span>
+                </div>
+                <div class="map-legend-item">
+                    <div class="legend-dot low"></div>
+                    <span>Wenig</span>
+                </div>
+            </div>
+
+            <div class="map-info" id="mapInfo">
+                <button class="map-close-btn" onclick="closeMapInfo()">×</button>
+                <h3>📍 Postings an diesem Ort</h3>
+                <div id="mapPostList"></div>
+            </div>
+        </div>
+
         <!-- PROFILE PAGE -->
         <div class="profile-page" id="profilePage">
             <div class="profile-header">
@@ -1494,6 +1672,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
                 <span>Channels</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('map', this)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 01-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                <span>Karte</span>
             </button>
             <button class="nav-item" onclick="openCreatePost()">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -1639,6 +1823,7 @@
             document.querySelectorAll('.messages-page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.notifications-page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.profile-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.map-page').forEach(p => p.classList.remove('active'));
             
             // Remove active from all nav items
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -1654,6 +1839,9 @@
                 document.getElementById('notificationsPage').classList.add('active');
             } else if (tab === 'profile') {
                 document.getElementById('profilePage').classList.add('active');
+            } else if (tab === 'map') {
+                document.getElementById('mapPage').classList.add('active');
+                initMap();
             }
             
             // Set active nav item
@@ -1772,6 +1960,366 @@
             toast.textContent = message;
             toast.style.display = 'block';
             setTimeout(() => toast.style.display = 'none', 2000);
+        }
+
+        // ============================================
+        // MAP FUNCTIONALITY
+        // ============================================
+        let map = null;
+        let heatLayer = null;
+        let explorationMarker = null;
+        let mapInitialized = false;
+
+        // Mock data: Global posting hotspots
+        const postLocations = [
+            // Portugal
+            { lat: 38.7223, lng: -9.1393, intensity: 0.9, posts: 45, city: "Lissabon", samplePosts: [
+                { author: "VanLife_PT", text: "Cascais Strand - perfekter Spot! 🏖️", time: "vor 2h" },
+                { author: "NomadNina", text: "Belém Tower bei Sonnenuntergang 😍", time: "vor 5h" }
+            ]},
+            { lat: 37.0179, lng: -7.9308, intensity: 0.8, posts: 32, city: "Faro/Algarve", samplePosts: [
+                { author: "SunChaser", text: "Lagos ist unglaublich! 🌅", time: "vor 1h" },
+                { author: "BeachVan", text: "Geheimer Strand bei Salema 🏝️", time: "vor 3h" }
+            ]},
+            // Spain
+            { lat: 41.3851, lng: 2.1734, intensity: 0.85, posts: 38, city: "Barcelona", samplePosts: [
+                { author: "Mediterrano", text: "Park Güell morgens ist magisch ✨", time: "vor 4h" },
+                { author: "CoastalVan", text: "Costa Brava hidden spots 🏕️", time: "vor 6h" }
+            ]},
+            { lat: 39.4699, lng: -0.3763, intensity: 0.7, posts: 22, city: "Valencia", samplePosts: [
+                { author: "OrangeVan", text: "Albufera See bei Sonnenuntergang 🌊", time: "vor 2h" }
+            ]},
+            { lat: 36.7213, lng: -4.4214, intensity: 0.75, posts: 28, city: "Málaga", samplePosts: [
+                { author: "AndaluzVan", text: "Nerja Höhlen - wow! 🤯", time: "vor 3h" }
+            ]},
+            // France
+            { lat: 43.2965, lng: 5.3698, intensity: 0.8, posts: 35, city: "Marseille", samplePosts: [
+                { author: "ProvenceVan", text: "Calanques sind atemberaubend! 🏔️", time: "vor 1h" }
+            ]},
+            { lat: 43.6047, lng: 1.4442, intensity: 0.6, posts: 18, city: "Toulouse", samplePosts: [
+                { author: "PinkCity", text: "Carcassonne Tagesausflug 🏰", time: "vor 4h" }
+            ]},
+            { lat: 48.8566, lng: 2.3522, intensity: 0.9, posts: 52, city: "Paris", samplePosts: [
+                { author: "CityNomad", text: "Versailles Gärten zum picknicken 🌳", time: "vor 30min" },
+                { author: "ArtVan", text: "Montmartre am frühen Morgen 🎨", time: "vor 2h" }
+            ]},
+            // Germany
+            { lat: 52.5200, lng: 13.4050, intensity: 0.85, posts: 41, city: "Berlin", samplePosts: [
+                { author: "BerlinVan_Dave", text: "Grunewald See ist top! 🌲", time: "vor 1h" },
+                { author: "SpreeNomad", text: "Tempelhofer Feld - freier Platz 🛩️", time: "vor 3h" }
+            ]},
+            { lat: 48.1351, lng: 11.5820, intensity: 0.75, posts: 29, city: "München", samplePosts: [
+                { author: "AlpenVan", text: "Starnberger See perfekt! 🏔️", time: "vor 2h" }
+            ]},
+            { lat: 50.9375, lng: 6.9603, intensity: 0.6, posts: 15, city: "Köln", samplePosts: [
+                { author: "RhineVan", text: "Rheinauhafen steht frei ⚓", time: "vor 5h" }
+            ]},
+            // Austria
+            { lat: 48.2082, lng: 16.3738, intensity: 0.65, posts: 19, city: "Wien", samplePosts: [
+                { author: "DanubeVan", text: "Donauinsel bei Nacht 🌙", time: "vor 3h" }
+            ]},
+            { lat: 47.2692, lng: 11.4041, intensity: 0.7, posts: 24, city: "Innsbruck", samplePosts: [
+                { author: "TyrolVan", text: "Nordkette Sonnenaufgang 🌄", time: "vor 1h" }
+            ]},
+            // Italy
+            { lat: 45.4642, lng: 9.1900, intensity: 0.8, posts: 33, city: "Mailand", samplePosts: [
+                { author: "LakeLover", text: "Comer See - Traum! 💙", time: "vor 2h" }
+            ]},
+            { lat: 43.7696, lng: 11.2558, intensity: 0.85, posts: 40, city: "Florenz", samplePosts: [
+                { author: "TuscanSun", text: "Chianti Region - Weinberge! 🍷", time: "vor 4h" }
+            ]},
+            { lat: 41.9028, lng: 12.4964, intensity: 0.9, posts: 48, city: "Rom", samplePosts: [
+                { author: "AncientVan", text: "Ostia Antica Parkplatz frei 🏛️", time: "vor 1h" },
+                { author: "VaticanVan", text: "Tiber Ufer über Nacht ⛺", time: "vor 6h" }
+            ]},
+            { lat: 45.4408, lng: 12.3155, intensity: 0.8, posts: 36, city: "Venedig", samplePosts: [
+                { author: "LagunaVan", text: "Lido di Jesolo preiswert 🏖️", time: "vor 2h" }
+            ]},
+            { lat: 40.8518, lng: 14.2681, intensity: 0.75, posts: 31, city: "Neapel", samplePosts: [
+                { author: "VolcanoVan", text: "Vesuv Sonnenaufgang 🔥", time: "vor 3h" }
+            ]},
+            { lat: 38.1157, lng: 13.3615, intensity: 0.7, posts: 26, city: "Palermo", samplePosts: [
+                { author: "SicilyVan", text: "Cefalù Strand - mega! 🌊", time: "vor 5h" }
+            ]},
+            // Croatia
+            { lat: 43.5081, lng: 16.4402, intensity: 0.85, posts: 38, city: "Split", samplePosts: [
+                { author: "AdriaVan", text: "Hvar Fähre easy! ⛴️", time: "vor 2h" },
+                { author: "CroatiaNomad", text: "Krka Wasserfälle 🌊", time: "vor 4h" }
+            ]},
+            { lat: 44.1194, lng: 15.2314, intensity: 0.9, posts: 47, city: "Zadar", samplePosts: [
+                { author: "SunsetChaser", text: "Sea Organ at sunset! 🎵", time: "vor 1h" },
+                { author: "PagVan", text: "Pag Island parties! 🎉", time: "vor 3h" }
+            ]},
+            { lat: 42.6507, lng: 18.0944, intensity: 0.8, posts: 34, city: "Dubrovnik", samplePosts: [
+                { author: "KingVan", text: "Game of Thrones tour 🏰", time: "vor 2h" }
+            ]},
+            // Greece
+            { lat: 37.9838, lng: 23.7275, intensity: 0.85, posts: 39, city: "Athen", samplePosts: [
+                { author: "AcroVan", text: "Akropolis bei Nacht beleuchtet 🏛️", time: "vor 1h" }
+            ]},
+            { lat: 36.3932, lng: 25.4615, intensity: 0.9, posts: 51, city: "Santorin", samplePosts: [
+                { author: "AegeanVan", text: "Oia Sonnenuntergang - unreal! 🌅", time: "vor 30min" },
+                { author: "WhiteBlue", text: "Red Beach sehr heiß 🏖️", time: "vor 2h" }
+            ]},
+            { lat: 35.3387, lng: 25.1442, intensity: 0.75, posts: 29, city: "Kreta", samplePosts: [
+                { author: "MinoanVan", text: "Balos Beach - schwieriger Weg aber wert! 🏝️", time: "vor 4h" }
+            ]},
+            // Turkey
+            { lat: 41.0082, lng: 28.9784, intensity: 0.8, posts: 35, city: "Istanbul", samplePosts: [
+                { author: "BosphorusVan", text: "Kadiköf Street Food Tour 🥙", time: "vor 2h" }
+            ]},
+            // Morocco
+            { lat: 31.6295, lng: -7.9811, intensity: 0.7, posts: 25, city: "Marrakesch", samplePosts: [
+                { author: "SaharaVan", text: "Atlas Gebirge Fahrt spektakulär! 🏔️", time: "vor 3h" }
+            ]},
+            // Netherlands
+            { lat: 52.3676, lng: 4.9041, intensity: 0.65, posts: 18, city: "Amsterdam", samplePosts: [
+                { author: "CanalVan", text: "Zandvoort Strand Parkplatz 🏖️", time: "vor 5h" }
+            ]},
+            // Belgium
+            { lat: 50.8503, lng: 4.3517, intensity: 0.55, posts: 14, city: "Brüssel", samplePosts: [
+                { author: "EUvan", text: "Atomium bei Nacht 💡", time: "vor 6h" }
+            ]},
+            // Switzerland
+            { lat: 46.9480, lng: 7.4474, intensity: 0.7, posts: 22, city: "Bern", samplePosts: [
+                { author: "AlpsVan", text: "Interlaken Basecamp 🏕️", time: "vor 4h" }
+            ]},
+            // UK
+            { lat: 51.5074, lng: -0.1278, intensity: 0.8, posts: 37, city: "London", samplePosts: [
+                { author: "ThamesVan", text: "Brighton Beach vibes 🏖️", time: "vor 2h" }
+            ]},
+            // Iceland
+            { lat: 64.1466, lng: -21.9426, intensity: 0.75, posts: 28, city: "Reykjavik", samplePosts: [
+                { author: "NordicVan", text: "Ring Road day 3 - Skógafoss! 🌈", time: "vor 1h" }
+            ]},
+            // Norway
+            { lat: 59.9139, lng: 10.7522, intensity: 0.65, posts: 19, city: "Oslo", samplePosts: [
+                { author: "FjordVan", text: "Lofoten unglaublich! 🏔️", time: "vor 3h" }
+            ]},
+            // Sweden
+            { lat: 59.3293, lng: 18.0686, intensity: 0.6, posts: 16, city: "Stockholm", samplePosts: [
+                { author: "ScandiVan", text: "Archipel perfekt für Kayak! 🛶", time: "vor 5h" }
+            ]},
+            // Denmark
+            { lat: 55.6761, lng: 12.5683, intensity: 0.55, posts: 13, city: "Kopenhagen", samplePosts: [
+                { author: "VikingVan", text: "Skagen - Zusammenfluss der Meere 🌊", time: "vor 4h" }
+            ]},
+            // Slovenia
+            { lat: 46.0569, lng: 14.5058, intensity: 0.7, posts: 23, city: "Ljubljana", samplePosts: [
+                { author: "JulianVan", text: "Bled See - Märchen! ✨", time: "vor 2h" }
+            ]},
+            // Montenegro
+            { lat: 42.4304, lng: 18.7676, intensity: 0.65, posts: 17, city: "Kotor", samplePosts: [
+                { author: "BayVan", text: "Bucht von Kotor - spektakulär! 🏔️", time: "vor 3h" }
+            ]},
+            // Albania
+            { lat: 41.3275, lng: 19.8187, intensity: 0.55, posts: 12, city: "Tirana", samplePosts: [
+                { author: "BalkanVan", text: "Himara Beach - verstecktes Juwel! 💎", time: "vor 6h" }
+            ]},
+            // Bulgaria
+            { lat: 42.6977, lng: 23.3219, intensity: 0.5, posts: 10, city: "Sofia", samplePosts: [
+                { author: "RoseVan", text: "Plovdiv Altstadt sehr cool! 🏛️", time: "vor 5h" }
+            ]},
+            // Romania
+            { lat: 44.4268, lng: 26.1025, intensity: 0.55, posts: 13, city: "Bukarest", samplePosts: [
+                { author: "DraculaVan", text: "Transsilvanien Roadtrip 🧛", time: "vor 4h" }
+            ]},
+            // Czech Republic
+            { lat: 50.0755, lng: 14.4378, intensity: 0.7, posts: 24, city: "Prag", samplePosts: [
+                { author: "BohemiaVan", text: "Karlsbrücke morgens leer! 😍", time: "vor 2h" }
+            ]},
+            // Poland
+            { lat: 52.2297, lng: 21.0122, intensity: 0.6, posts: 15, city: "Warschau", samplePosts: [
+                { author: "VistulaVan", text: "Krakau Altstadt Nachtleben 🌃", time: "vor 3h" }
+            ]},
+            // Hungary
+            { lat: 47.4979, lng: 19.0402, intensity: 0.65, posts: 18, city: "Budapest", samplePosts: [
+                { author: "DanubeVan", text: "Thermen sind ein Muss! ♨️", time: "vor 1h" }
+            ]},
+            // Serbia
+            { lat: 44.7866, lng: 20.4489, intensity: 0.5, posts: 11, city: "Belgrad", samplePosts: [
+                { author: "SavaVan", text: "Ada Ciganlija Strand 🏖️", time: "vor 4h" }
+            ]},
+            // Bosnia
+            { lat: 43.8563, lng: 18.4131, intensity: 0.55, posts: 12, city: "Sarajevo", samplePosts: [
+                { author: "MostarVan", text: "Mostar Brücke - atemberaubend! 🌉", time: "vor 5h" }
+            ]},
+            // USA
+            { lat: 34.0522, lng: -118.2437, intensity: 0.9, posts: 55, city: "Los Angeles", samplePosts: [
+                { author: "CaliVan", text: "Malibu Strand bei Sonnenuntergang 🌅", time: "vor 1h" },
+                { author: "HighwayOne", text: "Big Sur unglaubliche Aussicht! 🛣️", time: "vor 3h" }
+            ]},
+            { lat: 37.7749, lng: -122.4194, intensity: 0.85, posts: 42, city: "San Francisco", samplePosts: [
+                { author: "BayVan_US", text: "Muir Woods Riesenmammutbäume! 🌲", time: "vor 2h" }
+            ]},
+            // Canada
+            { lat: 49.2827, lng: -123.1207, intensity: 0.7, posts: 23, city: "Vancouver", samplePosts: [
+                { author: "MapleVan", text: "Banff Nationalpark - traumhaft! 🏔️", time: "vor 4h" }
+            ]},
+            // Mexico
+            { lat: 23.6345, lng: -102.5528, intensity: 0.6, posts: 16, city: "Mexiko", samplePosts: [
+                { author: "TacoVan", text: "Baja California Sur Strände 🏖️", time: "vor 5h" }
+            ]},
+            // South America - Brazil
+            { lat: -22.9068, lng: -43.1729, intensity: 0.75, posts: 31, city: "Rio de Janeiro", samplePosts: [
+                { author: "SambaVan", text: "Copacabana sunrise! 🌅", time: "vor 2h" }
+            ]},
+            // Australia
+            { lat: -33.8688, lng: 151.2093, intensity: 0.8, posts: 36, city: "Sydney", samplePosts: [
+                { author: "OzVan", text: "Great Ocean Road spektakulär! 🌊", time: "vor 3h" }
+            ]},
+            // New Zealand
+            { lat: -41.2865, lng: 174.7762, intensity: 0.75, posts: 29, city: "Wellington", samplePosts: [
+                { author: "KiwiVan", text: "Milford Sound - atemberaubend! 🏔️", time: "vor 4h" }
+            ]},
+            // South Africa
+            { lat: -33.9249, lng: 18.4241, intensity: 0.65, posts: 20, city: "Kapstadt", samplePosts: [
+                { author: "SafariVan", text: "Garden Route Roadtrip 🛣️", time: "vor 6h" }
+            ]},
+            // Thailand
+            { lat: 13.7563, lng: 100.5018, intensity: 0.8, posts: 37, city: "Bangkok", samplePosts: [
+                { author: "ThaiVan", text: "Ayutthaya Tagesausflug 🏛️", time: "vor 2h" },
+                { author: "IslandHop", text: "Koh Tao Tauchen! 🤿", time: "vor 4h" }
+            ]},
+            // Vietnam
+            { lat: 21.0278, lng: 105.8342, intensity: 0.7, posts: 26, city: "Hanoi", samplePosts: [
+                { author: "PhoVan", text: "Ha Long Bay muss man gesehen haben! 🏝️", time: "vor 3h" }
+            ]},
+            // Indonesia
+            { lat: -8.4095, lng: 115.1889, intensity: 0.85, posts: 43, city: "Bali", samplePosts: [
+                { author: "BaliVan", text: "Ubud Reisfelder Sonnenaufgang 🌾", time: "vor 1h" },
+                { author: "SurfVan", text: "Uluwatu Wellen sind perfekt! 🏄", time: "vor 3h" }
+            ]},
+            // Japan
+            { lat: 35.6762, lng: 139.6503, intensity: 0.8, posts: 38, city: "Tokio", samplePosts: [
+                { author: "NipponVan", text: "Mt. Fuji bei klarem Wetter! 🗻", time: "vor 2h" }
+            ]},
+            // India
+            { lat: 28.6139, lng: 77.2090, intensity: 0.65, posts: 21, city: "Delhi", samplePosts: [
+                { author: "HimalayaVan", text: "Taj Mahal Sonnenaufgang 🕌", time: "vor 4h" }
+            ]}
+        ];
+
+        function initMap() {
+            if (mapInitialized) return;
+            
+            // Initialize Leaflet map
+            map = L.map('mapContainer', {
+                zoomControl: false
+            }).setView([48.8566, 2.3522], 4); // Center on Europe
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            // Add zoom control to top right
+            L.control.zoom({
+                position: 'topright'
+            }).addTo(map);
+
+            // Prepare heatmap data
+            const heatData = postLocations.map(loc => [loc.lat, loc.lng, loc.intensity]);
+
+            // Add heatmap layer
+            heatLayer = L.heatLayer(heatData, {
+                radius: 30,
+                blur: 25,
+                maxZoom: 10,
+                max: 1.0,
+                gradient: {
+                    0.2: '#FFD700',  // Yellow (low)
+                    0.5: '#FFA500',  // Orange (medium)
+                    0.8: '#FF4500',  // Red-orange (high)
+                    1.0: '#FF0000'   // Red (very high)
+                }
+            }).addTo(map);
+
+            // Add click handler for exploration pin
+            map.on('click', function(e) {
+                setExplorationPin(e.latlng);
+            });
+
+            mapInitialized = true;
+        }
+
+        function setExplorationPin(latlng) {
+            // Remove existing marker
+            if (explorationMarker) {
+                map.removeLayer(explorationMarker);
+            }
+
+            // Add new marker
+            const customIcon = L.divIcon({
+                className: 'custom-pin',
+                html: '<div style="background:#FF8F00;width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:14px;">📍</div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 24]
+            });
+
+            explorationMarker = L.marker(latlng, { icon: customIcon }).addTo(map);
+            
+            // Show nearby posts
+            showNearbyPosts(latlng);
+            
+            // Show toast
+            showToast('📍 Erkundungspin gesetzt!');
+        }
+
+        function showNearbyPosts(latlng) {
+            const infoPanel = document.getElementById('mapInfo');
+            const postList = document.getElementById('mapPostList');
+            
+            // Find posts within ~200km radius
+            const nearbyLocations = postLocations.filter(loc => {
+                const distance = getDistance(latlng.lat, latlng.lng, loc.lat, loc.lng);
+                return distance < 200; // km
+            }).sort((a, b) => {
+                const distA = getDistance(latlng.lat, latlng.lng, a.lat, a.lng);
+                const distB = getDistance(latlng.lat, latlng.lng, b.lat, b.lng);
+                return distA - distB;
+            });
+
+            if (nearbyLocations.length === 0) {
+                postList.innerHTML = '<p style="color:#999;font-size:14px;padding:10px 0;">Keine Postings in der Nähe gefunden.<br>Tipp auf einen roten Bereich für mehr Aktivität!</p>';
+            } else {
+                let html = '';
+                nearbyLocations.slice(0, 3).forEach(loc => {
+                    const distance = Math.round(getDistance(latlng.lat, latlng.lng, loc.lat, loc.lng));
+                    html += `<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;">
+                        <div style="font-weight:600;color:#FF8F00;font-size:14px;">${loc.city} (${distance} km)</div>
+                        <div style="font-size:12px;color:#666;margin-top:4px;">${loc.posts} Postings in dieser Region</div>
+                    </div>`;
+                    
+                    loc.samplePosts.forEach(post => {
+                        html += `<div class="map-post-item">
+                            <div class="map-post-author">${post.author}</div>
+                            <div class="map-post-text">${post.text}</div>
+                            <div class="map-post-time">${post.time}</div>
+                        </div>`;
+                    });
+                });
+                postList.innerHTML = html;
+            }
+            
+            infoPanel.classList.add('active');
+        }
+
+        function closeMapInfo() {
+            document.getElementById('mapInfo').classList.remove('active');
+        }
+
+        // Calculate distance between two points using Haversine formula
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
         }
     </script>
 </body>
