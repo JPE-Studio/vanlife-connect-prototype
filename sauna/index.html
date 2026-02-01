@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sauna Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Stats Cards */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #ee5a5a;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* Session Form */
+        .session-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+
+        .session-card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .temp-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 18px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .temp-input:focus {
+            border-color: #ee5a5a;
+            outline: none;
+        }
+
+        /* Mood Selector */
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .mood-btn {
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 8px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mood-btn.selected {
+            border-color: #ee5a5a;
+            background: #ffebee;
+            transform: scale(1.05);
+        }
+
+        .mood-label {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* Duration Buttons */
+        .duration-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .duration-btn {
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .duration-btn.selected {
+            border-color: #ee5a5a;
+            background: #ffebee;
+            color: #ee5a5a;
+            font-weight: 600;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(238, 90, 90, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* History */
+        .history-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .history-card h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .session-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .session-mood {
+            font-size: 32px;
+            margin-right: 16px;
+        }
+
+        .session-info {
+            flex: 1;
+        }
+
+        .session-date {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .session-details {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 28px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧖 Sauna Tracker</h1>
+            <p>Track deine Sessions & Wellness</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalSessions">0</div>
+                <div class="stat-label">Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgTemp">-</div>
+                <div class="stat-label">Ø Temperatur</div>
+            </div>
+        </div>
+
+        <!-- New Session Form -->
+        <div class="session-card">
+            <h2>Neue Session</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Temperatur (°C)</label>
+                <input type="number" class="temp-input" id="tempInput" placeholder="z.B. 85" min="40" max="120">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Dauer</label>
+                <div class="duration-grid">
+                    <button class="duration-btn" onclick="selectDuration(this, 10)">10 min</button>
+                    <button class="duration-btn" onclick="selectDuration(this, 15)">15 min</button>
+                    <button class="duration-btn" onclick="selectDuration(this, 20)">20 min</button>
+                    <button class="duration-btn" onclick="selectDuration(this, 30)">30 min</button>
+                    <button class="duration-btn" onclick="selectDuration(this, 45)">45 min</button>
+                    <button class="duration-btn" onclick="selectDuration(this, 60)">60 min</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Wie fühlst du dich?</label>
+                <div class="mood-grid">
+                    <button class="mood-btn" onclick="selectMood(this, '💪')">
+                        💪
+                        <span class="mood-label">Stark</span>
+                    </button>
+                    <button class="mood-btn" onclick="selectMood(this, '😌')">
+                        😌
+                        <span class="mood-label">Entspannt</span>
+                    </button>
+                    <button class="mood-btn" onclick="selectMood(this, '💆')">
+                        💆
+                        <span class="mood-label">Müde</span>
+                    </button>
+                    <button class="mood-btn" onclick="selectMood(this, '🤩')">
+                        🤩
+                        <span class="mood-label">Top!</span>
+                    </button>
+                </div>
+            </div>
+
+            <button class="submit-btn" onclick="saveSession()">Session speichern</button>
+        </div>
+
+        <!-- History -->
+        <div class="history-card">
+            <h2>Verlauf</h2>
+            <div id="historyList">
+                <div class="empty-state">
+                    <div class="empty-icon">🧖</div>
+                    <p>Noch keine Sessions gespeichert</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        let selectedDuration = null;
+        let selectedMood = null;
+
+        // Load sessions from localStorage
+        let sessions = JSON.parse(localStorage.getItem('saunaSessions') || '[]');
+
+        // Initialize
+        updateStats();
+        renderHistory();
+
+        function selectDuration(btn, minutes) {
+            document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedDuration = minutes;
+        }
+
+        function selectMood(btn, mood) {
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedMood = mood;
+        }
+
+        function saveSession() {
+            const temp = document.getElementById('tempInput').value;
+            
+            if (!temp || !selectedDuration || !selectedMood) {
+                showToast('Bitte alle Felder ausfüllen');
+                return;
+            }
+
+            const session = {
+                date: new Date().toISOString(),
+                temp: parseInt(temp),
+                duration: selectedDuration,
+                mood: selectedMood
+            };
+
+            sessions.unshift(session);
+            localStorage.setItem('saunaSessions', JSON.stringify(sessions));
+
+            // Reset form
+            document.getElementById('tempInput').value = '';
+            document.querySelectorAll('.duration-btn, .mood-btn').forEach(b => b.classList.remove('selected'));
+            selectedDuration = null;
+            selectedMood = null;
+
+            updateStats();
+            renderHistory();
+            showToast('Session gespeichert! 🔥');
+        }
+
+        function updateStats() {
+            document.getElementById('totalSessions').textContent = sessions.length;
+            
+            if (sessions.length > 0) {
+                const avg = Math.round(sessions.reduce((sum, s) => sum + s.temp, 0) / sessions.length);
+                document.getElementById('avgTemp').textContent = avg + '°';
+            } else {
+                document.getElementById('avgTemp').textContent = '-';
+            }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            
+            if (sessions.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🧖</div>
+                        <p>Noch keine Sessions gespeichert</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = sessions.slice(0, 10).map(s => {
+                const date = new Date(s.date);
+                const dateStr = date.toLocaleDateString('de-DE', { 
+                    weekday: 'short', 
+                    day: 'numeric', 
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                return `
+                    <div class="session-item">
+                        <div class="session-mood">${s.mood}</div>
+                        <div class="session-info">
+                            <div class="session-date">${dateStr}</div>
+                            <div class="session-details">${s.temp}°C • ${s.duration} Minuten</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
+        }
+    </script>
+</body>
+</html>
