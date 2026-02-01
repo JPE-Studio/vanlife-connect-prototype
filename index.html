@@ -341,6 +341,31 @@
             text-align: center;
         }
 
+        /* FLOATING ACTION BUTTON */
+        .fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(255, 143, 0, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
         /* CHANNELS PAGE */
         .channels-page {
             display: none;
@@ -944,6 +969,25 @@
         .legend-dot.high { background: #FF4500; }
         .legend-dot.medium { background: #FFA500; }
         .legend-dot.low { background: #FFD700; }
+
+        .explore-feed-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            box-shadow: 0 2px 8px rgba(255, 143, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .explore-feed-btn:active {
+            transform: scale(0.98);
+        }
 
         /* PROFILE PAGE */
         .profile-page {
@@ -1598,6 +1642,9 @@
                 <button class="map-close-btn" onclick="closeMapInfo()">×</button>
                 <h3>📍 Postings an diesem Ort</h3>
                 <div id="mapPostList"></div>
+                <button class="explore-feed-btn" id="exploreFeedBtn" onclick="exploreFeedFromPin()" style="display:none;">
+                    🔍 Feed in dieser Region erkunden
+                </button>
             </div>
         </div>
 
@@ -1679,12 +1726,6 @@
                 </svg>
                 <span>Karte</span>
             </button>
-            <button class="nav-item" onclick="openCreatePost()">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span>Post</span>
-            </button>
             <button class="nav-item" onclick="switchTab('messages', this)">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -1700,6 +1741,9 @@
             </button>
         </div>
     </div>
+
+    <!-- FLOATING ACTION BUTTON -->
+    <button class="fab" onclick="openCreatePost()">+</button>
 
     <!-- COMMENTS PAGE (Full Page) -->
     <div class="comments-page" id="commentsPage">
@@ -1969,6 +2013,7 @@
         let heatLayer = null;
         let explorationMarker = null;
         let mapInitialized = false;
+        let currentPinLocation = null;
 
         // Mock data: Global posting hotspots
         const postLocations = [
@@ -2245,6 +2290,9 @@
         }
 
         function setExplorationPin(latlng) {
+            // Save location for feed exploration
+            currentPinLocation = latlng;
+
             // Remove existing marker
             if (explorationMarker) {
                 map.removeLayer(explorationMarker);
@@ -2283,6 +2331,7 @@
 
             if (nearbyLocations.length === 0) {
                 postList.innerHTML = '<p style="color:#999;font-size:14px;padding:10px 0;">Keine Postings in der Nähe gefunden.<br>Tipp auf einen roten Bereich für mehr Aktivität!</p>';
+                document.getElementById('exploreFeedBtn').style.display = 'none';
             } else {
                 let html = '';
                 nearbyLocations.slice(0, 3).forEach(loc => {
@@ -2301,6 +2350,7 @@
                     });
                 });
                 postList.innerHTML = html;
+                document.getElementById('exploreFeedBtn').style.display = 'block';
             }
             
             infoPanel.classList.add('active');
@@ -2308,6 +2358,25 @@
 
         function closeMapInfo() {
             document.getElementById('mapInfo').classList.remove('active');
+        }
+
+        function exploreFeedFromPin() {
+            if (!currentPinLocation) return;
+            
+            // Close map info
+            closeMapInfo();
+            
+            // Switch to feed
+            document.querySelectorAll('.page, .channels-page, .messages-page, .notifications-page, .profile-page, .map-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('feedPage').classList.add('active');
+            document.querySelector('.nav-item').classList.add('active');
+            
+            // Show toast with location info
+            showToast(`🔍 Zeige Feed für diese Region`);
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
         }
 
         // Calculate distance between two points using Haversine formula
