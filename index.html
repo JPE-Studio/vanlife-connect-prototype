@@ -2235,7 +2235,7 @@
 
             <!-- Direct Messages -->
             <div class="message-list" id="dmsList">
-                <div class="message-item unread" onclick="showToast('Chat mit WanderVan_89')">
+                <div class="message-item unread" onclick="openChatDetail('WanderVan_89', '🚐')">
                     <div class="message-avatar">🚐</div>
                     <div class="message-content">
                         <div class="message-name">
@@ -2246,7 +2246,7 @@
                     </div>
                     <div class="unread-dot"></div>
                 </div>
-                <div class="message-item" onclick="showToast('Chat mit CamperLife_Sarah')">
+                <div class="message-item" onclick="openChatDetail('CamperLife_Sarah', '🏕️')">
                     <div class="message-avatar">🏕️</div>
                     <div class="message-content">
                         <div class="message-name">
@@ -2256,7 +2256,7 @@
                         <div class="message-preview">Danke für die Info! Hat super geklappt 😊</div>
                     </div>
                 </div>
-                <div class="message-item unread" onclick="showToast('Chat mit ForestVan_Tom')">
+                <div class="message-item unread" onclick="openChatDetail('ForestVan_Tom', '🌲')">
                     <div class="message-avatar">🌲</div>
                     <div class="message-content">
                         <div class="message-name">
@@ -2267,7 +2267,7 @@
                     </div>
                     <div class="unread-dot"></div>
                 </div>
-                <div class="message-item" onclick="showToast('Chat mit NomadNina')">
+                <div class="message-item" onclick="openChatDetail('NomadNina', '🌊')">
                     <div class="message-avatar">🌊</div>
                     <div class="message-content">
                         <div class="message-name">
@@ -2908,30 +2908,137 @@
         </div>
     </div>
 
-    <!-- CHAT DETAIL PAGE 
-         Beschreibung: Einzelne Konversation:
-         - Header mit Profilbild, Name, Status (online/offline)
-         - Nachrichten-Verlauf (wie WhatsApp)
-         - Bilder/Voice Messages senden
-         - Standort teilen
-         - Spot empfehlen (aus gespeicherten)
-         - Blockieren/Melden Optionen
-    -->
-    <div class="chat-detail-page" id="chatDetailPage" style="display:none;">
-        <!-- TODO: Implementieren -->
+    <!-- CHAT DETAIL PAGE -->
+    <div class="chat-detail-page" id="chatDetailPage">
+        <div class="chat-detail-header">
+            <button class="back-btn" onclick="closeChatDetail()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="chat-detail-header-avatar" id="chatDetailAvatar">🚐</div>
+            <div class="chat-detail-header-info">
+                <div class="chat-detail-header-name" id="chatDetailName">WanderVan_89</div>
+                <div class="chat-detail-header-status">online</div>
+            </div>
+            <button class="back-btn" onclick="showToast('Mehr Optionen')" style="margin-left: auto;">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="chat-detail-messages" id="chatDetailMessages">
+            <div class="chat-detail-message">
+                <div class="chat-detail-message-bubble">
+                    Hey! Bist du immer noch am Landwehrkanal? 🚐
+                    <div class="chat-detail-message-time">12:15</div>
+                </div>
+            </div>
+            <div class="chat-detail-message own">
+                <div class="chat-detail-message-bubble">
+                    Ja, sitze hier gerade im Café! Komm vorbei ☕️
+                    <div class="chat-detail-message-time">12:18</div>
+                </div>
+            </div>
+            <div class="chat-detail-message">
+                <div class="chat-detail-message-bubble">
+                    Super, bin in 5 Minuten da! Hast du WLAN? Muss noch was für Arbeit erledigen.
+                    <div class="chat-detail-message-time">12:19</div>
+                </div>
+            </div>
+            <div class="chat-detail-message own">
+                <div class="chat-detail-message-bubble">
+                    Ja, das Passwort ist "Vanlife2024" - ist echt stabil hier! 📶
+                    <div class="chat-detail-message-time">12:20</div>
+                </div>
+            </div>
+            <div class="chat-detail-message">
+                <div class="chat-detail-message-bubble">
+                    Perfekt, danke! Bis gleich 👋
+                    <div class="chat-detail-message-time">12:21</div>
+                </div>
+            </div>
+        </div>
+        <div class="chat-detail-input-area">
+            <div class="chat-detail-actions-row">
+                <button class="chat-detail-action-btn" onclick="showToast('Bild senden')">📷</button>
+                <button class="chat-detail-action-btn" onclick="showToast('Standort senden')">📍</button>
+                <button class="chat-detail-action-btn" onclick="showToast('Spot empfehlen')">🏕️</button>
+                <button class="chat-detail-action-btn" onclick="showToast('Voice Message')">🎤</button>
+            </div>
+            <div class="chat-detail-input-row">
+                <input type="text" class="chat-detail-input" id="chatInput" placeholder="Nachricht schreiben..." onkeypress="if(event.key==='Enter')sendChatMessage()">
+                <button class="send-btn" onclick="sendChatMessage()">
+                    <svg fill="none" stroke="white" viewBox="0 0 24 24" width="20" height="20" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- SEARCH PAGE 
-         Beschreibung: Globale Suche:
-         - Suchleiste oben mit Filter-Chips
-         - Suche nach: Nutzern, Spots, Hashtags, Städten
-         - Letzte Suchanfragen
-         - Trending Hashtags
-         - Vorschläge basierend auf Nähe
-         - Ergebnisse in Tabs: Alle, Nutzer, Spots, Posts
-    -->
-    <div class="search-page" id="searchPage" style="display:none;">
-        <!-- TODO: Implementieren -->
+    <!-- SEARCH PAGE -->
+    <div class="search-page" id="searchPage">
+        <div class="search-header">
+            <button class="back-btn" onclick="closeSearch()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Suche nach Nutzern, Spots, #Hashtags..." oninput="performSearch(this.value)">
+            </div>
+        </div>
+        <div class="search-filters">
+            <button class="search-filter-chip active" onclick="setSearchFilter('all', this)">Alle</button>
+            <button class="search-filter-chip" onclick="setSearchFilter('users', this)">👤 Nutzer</button>
+            <button class="search-filter-chip" onclick="setSearchFilter('spots', this)">📍 Spots</button>
+            <button class="search-filter-chip" onclick="setSearchFilter('posts', this)">📝 Posts</button>
+        </div>
+        <div class="search-content" id="searchContent">
+            <div class="search-section">
+                <div class="search-section-title">🔥 Trending</div>
+                <div>
+                    <span class="search-trending-tag" onclick="setSearchTag('#vanlife')">#vanlife</span>
+                    <span class="search-trending-tag" onclick="setSearchTag('#berlin')">#berlin</span>
+                    <span class="search-trending-tag" onclick="setSearchTag('#camping')">#camping</span>
+                    <span class="search-trending-tag" onclick="setSearchTag('#roadtrip')">#roadtrip</span>
+                    <span class="search-trending-tag" onclick="setSearchTag('#solotravel')">#solotravel</span>
+                    <span class="search-trending-tag" onclick="setSearchTag('#sunset')">#sunset</span>
+                </div>
+            </div>
+            <div class="search-section">
+                <div class="search-section-title">🕐 Zuletzt gesucht</div>
+                <div class="search-recent-item" onclick="setSearchTag('Grunewald')">
+                    <span>🕐</span>
+                    <span>Grunewald</span>
+                </div>
+                <div class="search-recent-item" onclick="setSearchTag('WanderVan_89')">
+                    <span>🕐</span>
+                    <span>WanderVan_89</span>
+                </div>
+                <div class="search-recent-item" onclick="setSearchTag('#vanlifeberlin')">
+                    <span>🕐</span>
+                    <span>#vanlifeberlin</span>
+                </div>
+            </div>
+            <div class="search-section">
+                <div class="search-section-title">📍 In der Nähe</div>
+                <div class="search-recent-item" onclick="setSearchTag('Tegeler See')">
+                    <span>📍</span>
+                    <span>Tegeler See</span>
+                </div>
+                <div class="search-recent-item" onclick="setSearchTag('Tempelhofer Feld')">
+                    <span>📍</span>
+                    <span>Tempelhofer Feld</span>
+                </div>
+                <div class="search-recent-item" onclick="setSearchTag('Mauerpark')">
+                    <span>📍</span>
+                    <span>Mauerpark</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- DISCOVER/FILTER PAGE 
@@ -3018,17 +3125,73 @@
         <!-- TODO: Implementieren -->
     </div>
 
-    <!-- FOLLOWERS/FOLLOWING PAGE 
-         Beschreibung: Follower-Listen:
-         - Tabs: Follower | Folge ich
-         - Suchleiste in der Liste
-         - Sortieren: Neueste, Alphabetisch
-         - Entfolgen/Folgen Button
-         - Gemeinsame Follower anzeigen
-         - Zu Profil navigieren
-    -->
-    <div class="followers-page" id="followersPage" style="display:none;">
-        <!-- TODO: Implementieren -->
+    <!-- FOLLOWERS/FOLLOWING PAGE -->
+    <div class="followers-page" id="followersPage">
+        <div class="followers-header">
+            <button class="back-btn" onclick="closeFollowers()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h2>👥 Follower</h2>
+        </div>
+        <div class="followers-tabs">
+            <button class="followers-tab active" onclick="switchFollowersTab('followers', this)">156 Follower</button>
+            <button class="followers-tab" onclick="switchFollowersTab('following', this)">89 Folge ich</button>
+        </div>
+        <div class="followers-search">
+            <input type="text" class="followers-search-input" placeholder="Suchen..." oninput="searchFollowers(this.value)">
+        </div>
+        <div class="followers-list" id="followersList">
+            <div class="follower-item" data-follower="wander">
+                <div class="follower-avatar">🚐</div>
+                <div class="follower-info">
+                    <div class="follower-name">WanderVan_89</div>
+                    <div class="follower-handle">@wanderlust_van</div>
+                </div>
+                <button class="follow-btn following" onclick="toggleFollow(this)">Folge ich</button>
+            </div>
+            <div class="follower-item" data-follower="camper">
+                <div class="follower-avatar">🏕️</div>
+                <div class="follower-info">
+                    <div class="follower-name">CamperLife_Sarah</div>
+                    <div class="follower-handle">@sarah_camps</div>
+                </div>
+                <button class="follow-btn following" onclick="toggleFollow(this)">Folge ich</button>
+            </div>
+            <div class="follower-item" data-follower="forest">
+                <div class="follower-avatar">🌲</div>
+                <div class="follower-info">
+                    <div class="follower-name">ForestVan_Tom</div>
+                    <div class="follower-handle">@tom_inthewoods</div>
+                </div>
+                <button class="follow-btn" onclick="toggleFollow(this)">Folgen</button>
+            </div>
+            <div class="follower-item" data-follower="nomad">
+                <div class="follower-avatar">🌊</div>
+                <div class="follower-info">
+                    <div class="follower-name">NomadNina</div>
+                    <div class="follower-handle">@nina_travels</div>
+                </div>
+                <button class="follow-btn following" onclick="toggleFollow(this)">Folge ich</button>
+            </div>
+            <div class="follower-item" data-follower="alpine">
+                <div class="follower-avatar">🏔️</div>
+                <div class="follower-info">
+                    <div class="follower-name">AlpineVan_Max</div>
+                    <div class="follower-handle">@max_alps</div>
+                </div>
+                <button class="follow-btn" onclick="toggleFollow(this)">Folgen</button>
+            </div>
+            <div class="follower-item" data-follower="beach">
+                <div class="follower-avatar">🏖️</div>
+                <div class="follower-info">
+                    <div class="follower-name">BeachVan_Lisa</div>
+                    <div class="follower-handle">@lisa_beachlife</div>
+                </div>
+                <button class="follow-btn following" onclick="toggleFollow(this)">Folge ich</button>
+            </div>
+        </div>
     </div>
 
     <!-- COMMENTS PAGE (Full Page) -->
@@ -3931,6 +4094,98 @@
                 });
             });
         });
+
+        // ============================================
+        // PRIORITY 2: CHAT DETAIL FUNCTIONS
+        // ============================================
+        function openChatDetail(userName, avatar) {
+            document.getElementById('chatDetailName').textContent = userName;
+            document.getElementById('chatDetailAvatar').textContent = avatar;
+            document.getElementById('chatDetailPage').classList.add('active');
+        }
+        function closeChatDetail() {
+            document.getElementById('chatDetailPage').classList.remove('active');
+        }
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (text) {
+                const messagesDiv = document.getElementById('chatDetailMessages');
+                const time = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+                messagesDiv.innerHTML += `<div class="chat-detail-message own"><div class="chat-detail-message-bubble">${text}<div class="chat-detail-message-time">${time}</div></div></div>`;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                input.value = '';
+                // Simulate reply after 2 seconds
+                setTimeout(() => {
+                    messagesDiv.innerHTML += `<div class="chat-detail-message"><div class="chat-detail-message-bubble">👍<div class="chat-detail-message-time">${time}</div></div></div>`;
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }, 2000);
+            }
+        }
+
+        // ============================================
+        // PRIORITY 2: FOLLOWERS FUNCTIONS
+        // ============================================
+        function openFollowers() {
+            document.getElementById('followersPage').classList.add('active');
+        }
+        function closeFollowers() {
+            document.getElementById('followersPage').classList.remove('active');
+        }
+        function openFollowing() {
+            openFollowers();
+            setTimeout(() => {
+                document.querySelectorAll('.followers-tab')[1].click();
+            }, 100);
+        }
+        function switchFollowersTab(tab, btn) {
+            document.querySelectorAll('.followers-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        function toggleFollow(btn) {
+            if (btn.classList.contains('following')) {
+                btn.classList.remove('following');
+                btn.textContent = 'Folgen';
+            } else {
+                btn.classList.add('following');
+                btn.textContent = 'Folge ich';
+            }
+        }
+        function searchFollowers(query) {
+            const items = document.querySelectorAll('.follower-item');
+            items.forEach(item => {
+                const name = item.querySelector('.follower-name').textContent.toLowerCase();
+                const handle = item.querySelector('.follower-handle').textContent.toLowerCase();
+                if (name.includes(query.toLowerCase()) || handle.includes(query.toLowerCase())) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // ============================================
+        // PRIORITY 2: SEARCH FUNCTIONS
+        // ============================================
+        function openSearch() {
+            document.getElementById('searchPage').classList.add('active');
+            document.getElementById('searchInput').focus();
+        }
+        function closeSearch() {
+            document.getElementById('searchPage').classList.remove('active');
+        }
+        function setSearchFilter(filter, btn) {
+            document.querySelectorAll('.search-filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        function setSearchTag(tag) {
+            document.getElementById('searchInput').value = tag;
+            performSearch(tag);
+        }
+        function performSearch(query) {
+            // Real-time search simulation
+            console.log('Searching for:', query);
+        }
     </script>
 </body>
 </html>
