@@ -1,0 +1,2757 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vanlife Connect</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet Heatmap Plugin -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #FFF8F0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ONBOARDING SCREEN */
+        .onboarding {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .onboarding.hidden {
+            display: none;
+        }
+
+        .onboarding-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .onboarding h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .onboarding p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        .onboarding-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .onboarding-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.2);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .onboarding-feature-icon {
+            font-size: 20px;
+        }
+
+        .onboarding-btn {
+            background: white;
+            color: #FF8F00;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 28px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        /* MAIN APP */
+        .page {
+            display: none;
+            padding-bottom: 90px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Feed starts immediately at top - no header */
+        .feed {
+            padding: 12px;
+            padding-bottom: 100px;
+        }
+
+        /* Post Card */
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .post-header {
+            padding: 14px 16px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(255,143,0,0.3);
+        }
+
+        .author-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .author-info .channel-tag {
+            font-size: 11px;
+            color: #FF8F00;
+            background: #FFF3E0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 2px;
+            display: inline-block;
+        }
+
+        .author-info .time {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .post-actions-header {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .distance-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .distance-badge.near {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .translate-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.7;
+        }
+
+        .translate-btn:hover {
+            opacity: 1;
+        }
+
+        .post-content {
+            padding: 0 16px 14px;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .post-translated {
+            padding: 0 16px 10px;
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+            border-left: 3px solid #FF8F00;
+            margin: 0 16px 10px;
+            padding-left: 12px;
+            display: none;
+        }
+
+        .post-translated.visible {
+            display: block;
+        }
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            border-top: 1px solid #f0f0f0;
+            gap: 20px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            padding: 6px 0;
+        }
+
+        .action-btn.liked {
+            color: #FF6F00;
+        }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Comments Preview */
+        .comments-preview {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .comment-teaser {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #FF8F00;
+            color: white;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255,143,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 20px;
+            border-top: 1px solid #e0e0e0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 4px 12px;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: #FF8F00;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 4px;
+            background: #ff4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        /* FLOATING ACTION BUTTON */
+        .fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(255, 143, 0, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* CHANNELS PAGE */
+        .channels-page {
+            display: none;
+            padding-bottom: 90px;
+            background: #FFF8F0;
+            min-height: 100vh;
+        }
+
+        .channels-page.active {
+            display: block;
+        }
+
+        .channels-header {
+            background: #FF8F00;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .channels-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .channels-list {
+            padding: 16px;
+        }
+
+        .channel-item {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            cursor: pointer;
+        }
+
+        .channel-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .channel-info {
+            flex: 1;
+        }
+
+        .channel-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .channel-desc {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .channel-posts {
+            background: #FFF3E0;
+            color: #FF8F00;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Channel Tabs in Feed */
+        .channel-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #FFF8F0;
+        }
+
+        .channel-tab {
+            background: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .channel-tab.active {
+            background: #FF8F00;
+            color: white;
+        }
+
+        /* COMMENTS PAGE */
+        .comments-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #FFF8F0;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .comments-page.active {
+            display: flex;
+        }
+
+        .comments-header {
+            background: #FF8F00;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .comments-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .original-post-preview {
+            background: white;
+            margin: 12px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .original-post-preview .post-header {
+            padding: 0 0 8px 0;
+        }
+
+        .original-post-preview .post-content {
+            padding: 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-end;
+        }
+
+        .message.own {
+            justify-content: flex-end;
+        }
+
+        .message-avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message:not(.own) .message-bubble {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .message.own .message-bubble {
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message.own .message-time {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .chat-input-container {
+            padding: 12px 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #FF8F00;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* MESSAGES PAGE */
+        .messages-page {
+            display: none;
+            padding-bottom: 90px;
+            background: #FFF8F0;
+            min-height: 100vh;
+        }
+
+        .messages-page.active {
+            display: block;
+        }
+
+        .messages-header {
+            background: #FF8F00;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .messages-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .messages-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .messages-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 16px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .messages-tab.active {
+            color: #FF8F00;
+            border-bottom-color: #FF8F00;
+            font-weight: 600;
+        }
+
+        .message-list {
+            background: white;
+        }
+
+        .message-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .message-item.unread {
+            background: #FFF8F0;
+        }
+
+        .message-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .message-preview {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-dot {
+            width: 8px;
+            height: 8px;
+            background: #FF8F00;
+            border-radius: 50%;
+        }
+
+        /* NOTIFICATIONS PAGE */
+        .notifications-page {
+            display: none;
+            padding-bottom: 90px;
+            background: #FFF8F0;
+            min-height: 100vh;
+        }
+
+        .notifications-page.active {
+            display: block;
+        }
+
+        .notifications-header {
+            background: #FF8F00;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .notifications-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .notifications-list {
+            padding: 12px;
+        }
+
+        .notification-item {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .notification-item.unread {
+            background: #FFF8F0;
+            border: 1px solid #FFE0B2;
+        }
+
+        .notification-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .notification-icon.like {
+            background: #FFEBEE;
+        }
+
+        .notification-icon.comment {
+            background: #E3F2FD;
+        }
+
+        .notification-icon.mention {
+            background: #F3E5F5;
+        }
+
+        .notification-icon.system {
+            background: #E8F5E9;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .notification-text strong {
+            color: #FF8F00;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* MAP PAGE */
+        .map-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 90px;
+            background: #FFF8F0;
+            z-index: 100;
+        }
+
+        .map-page.active {
+            display: block;
+        }
+
+        .map-header {
+            background: #FF8F00;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            position: relative;
+            z-index: 1001;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .map-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .map-header p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        #mapContainer {
+            width: 100%;
+            height: calc(100% - 70px);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .map-info {
+            position: absolute;
+            bottom: 20px;
+            left: 16px;
+            right: 16px;
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1002;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .map-info.active {
+            display: block;
+        }
+
+        .map-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .map-post-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .map-post-item:last-child {
+            border-bottom: none;
+        }
+
+        .map-post-author {
+            font-weight: 600;
+            color: #FF8F00;
+            font-size: 14px;
+        }
+
+        .map-post-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .map-post-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .map-close-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .map-legend {
+            position: absolute;
+            top: 80px;
+            right: 16px;
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1001;
+            font-size: 12px;
+        }
+
+        .map-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .map-legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.high { background: #FF4500; }
+        .legend-dot.medium { background: #FFA500; }
+        .legend-dot.low { background: #FFD700; }
+
+        .explore-feed-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #FF8F00 0%, #FFB74D 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            box-shadow: 0 2px 8px rgba(255, 143, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .explore-feed-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* PROFILE PAGE */
+        .profile-page {
+            display: none;
+            padding-bottom: 90px;
+            background: #FFF8F0;
+            min-height: 100vh;
+        }
+
+        .profile-page.active {
+            display: block;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #FFB74D 0%, #FF8F00 100%);
+            color: white;
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-handle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 24px;
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .profile-stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .profile-menu {
+            background: white;
+            margin-top: 16px;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .profile-menu-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .profile-menu-text {
+            flex: 1;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .profile-menu-arrow {
+            color: #999;
+            font-size: 18px;
+        }
+
+        /* Create Post Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* ============================================
+           PLATZHALTER-STYLES (Zu implementieren)
+           ============================================ */
+
+        /* Settings Page Styles */
+        .settings-page {
+            /* TODO: Styles für Einstellungen-Hauptseite */
+        }
+
+        /* Saved Spots Page Styles */
+        .saved-spots-page {
+            /* TODO: Styles für gespeicherte Spots-Liste */
+        }
+
+        /* My Posts Page Styles */
+        .my-posts-page {
+            /* TODO: Styles für eigene Beiträge */
+        }
+
+        /* Spot Detail Page Styles */
+        .spot-detail-page {
+            /* TODO: Styles für Spot-Detailansicht */
+        }
+
+        /* Chat Detail Page Styles */
+        .chat-detail-page {
+            /* TODO: Styles für einzelne Konversation */
+        }
+
+        /* Search Page Styles */
+        .search-page {
+            /* TODO: Styles für globale Suche */
+        }
+
+        /* Discover/Filter Page Styles */
+        .discover-page {
+            /* TODO: Styles für erweiterte Filter */
+        }
+
+        /* Edit Profile Page Styles */
+        .edit-profile-page {
+            /* TODO: Styles für Profil bearbeiten */
+        }
+
+        /* Language Page Styles */
+        .language-page {
+            /* TODO: Styles für Sprachauswahl */
+        }
+
+        /* Help & Support Page Styles */
+        .help-page {
+            /* TODO: Styles für Hilfe und Support */
+        }
+
+        /* Notification Settings Page Styles */
+        .notification-settings-page {
+            /* TODO: Styles für Benachrichtigungseinstellungen */
+        }
+
+        /* Blocked Users Page Styles */
+        .blocked-users-page {
+            /* TODO: Styles für blockierte Nutzer */
+        }
+
+        /* Followers/Following Page Styles */
+        .followers-page {
+            /* TODO: Styles für Follower-Listen */
+        }
+
+        .modal-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            max-height: 90vh;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal.active {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .create-post-content {
+            padding: 20px 16px;
+        }
+
+        .channel-select {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+
+        .channel-option {
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .channel-option.selected {
+            border-color: #FF8F00;
+            background: #FFF3E0;
+            color: #FF8F00;
+        }
+
+        .create-post-textarea {
+            width: 100%;
+            min-height: 120px;
+            border: none;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .create-post-textarea::placeholder {
+            color: #999;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .create-post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .post-btn {
+            background: #FF8F00;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .post-btn:disabled {
+            background: #ccc;
+        }
+
+        /* Toast Notification */
+        #toast {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- ONBOARDING -->
+    <div class="onboarding" id="onboarding">
+        <div class="onboarding-icon">🚐</div>
+        <h1>Vanlife Connect</h1>
+        <p>Die Community für Vanlife-Enthusiasten<br>in deiner Nähe</p>
+        
+        <div class="onboarding-features">
+            <div class="onboarding-feature">
+                <span class="onboarding-feature-icon">📍</span>
+                <span>Finde Vanlifer in deiner Umgebung</span>
+            </div>
+            <div class="onboarding-feature">
+                <span class="onboarding-feature-icon">💬</span>
+                <span>Tausche dich aus über Spots & Tipps</span>
+            </div>
+            <div class="onboarding-feature">
+                <span class="onboarding-feature-icon">🌍</span>
+                <span>Übersetze Posts automatisch</span>
+            </div>
+        </div>
+        
+        <button class="onboarding-btn" onclick="closeOnboarding()">Los geht's!</button>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp">
+        <!-- FEED PAGE - No header, starts immediately -->
+        <div class="page active" id="feedPage">
+            <!-- Channel Tabs -->
+            <div class="channel-tabs">
+                <button class="channel-tab active" onclick="filterChannel('all', this)">Alle</button>
+                <button class="channel-tab" onclick="filterChannel('spots', this)">📍 Spots</button>
+                <button class="channel-tab" onclick="filterChannel('treffen', this)">👥 Treffen</button>
+                <button class="channel-tab" onclick="filterChannel('hilfe', this)">🆘 Hilfe</button>
+                <button class="channel-tab" onclick="filterChannel('tipps', this)">💡 Tipps</button>
+            </div>
+
+            <!-- Feed -->
+            <div class="feed" id="feed">
+                <!-- Post 1 -->
+                <div class="post-card" data-channel="spots" onclick="openCommentsPage(1)">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="avatar">🚐</div>
+                            <div class="author-info">
+                                <h4>WanderVan_89</h4>
+                                <span class="channel-tag">📍 Spots</span>
+                            </div>
+                        </div>
+                        <div class="post-actions-header">
+                            <span class="distance-badge near">200m</span>
+                            <button class="translate-btn" onclick="translatePost(1, event)" title="Übersetzen">🌐</button>
+                        </div>
+                    </div>
+                    <div class="post-content" id="post1-content">
+                        Gerade am Landwehrkanal angekommen! Mega schöner Spot zum Arbeiten, WLAN vom Café gegenüber reicht für Zoom-Calls. Jemand Lust auf einen Kaffee? ☕️
+                    </div>
+                    <div class="post-translated" id="post1-translated"></div>
+                    <div class="post-actions">
+                        <button class="action-btn" onclick="toggleLike(this, event)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            <span>12</span>
+                        </button>
+                        <button class="action-btn" onclick="openCommentsPage(1, event)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            <span>4</span>
+                        </button>
+                    </div>
+                    <div class="comments-preview">
+                        <div class="comment-teaser">
+                            <span>💬</span>
+                            <span style="color: #FF8F00; font-weight: 500;">NomadNina:</span>
+                            <span>Welches Café genau? Bin gleich da! ☕️</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 2 -->
+                <div class="post-card" data-channel="hilfe" onclick="openCommentsPage(2)">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="avatar">🏕️</div>
+                            <div class="author-info">
+                                <h4>CamperLife_Sarah</h4>
+                                <span class="channel-tag">🆘 Hilfe</span>
+                            </div>
+                        </div>
+                        <div class="post-actions-header">
+                            <span class="distance-badge near">500m</span>
+                            <button class="translate-btn" onclick="translatePost(2, event)" title="Übersetzen">🌐</button>
+                        </div>
+                    </div>
+                    <div class="post-content" id="post2-content">
+                        Does anyone have experience with the parking spot at Tempelhofer Feld? Is it safe overnight? I have my bike with me and I'm a bit cautious 😅
+                    </div>
+                    <div class="post-translated" id="post2-translated">
+                        Hat jemand Erfahrung mit dem Stellplatz am Tempelhofer Feld? Ist es sicher über Nacht? Ich habe mein Fahrrad dabei und bin etwas vorsichtig 😅
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn liked" onclick="toggleLike(this, event)">
+                            <svg fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            <span>28</span>
+                        </button>
+                        <button class="action-btn" onclick="openCommentsPage(2, event)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            <span>8</span>
+                        </button>
+                    </div>
+                    <div class="comments-preview">
+                        <div class="comment-teaser">
+                            <span>💬</span>
+                            <span style="color: #FF8F00; font-weight: 500;">BerlinVan_Dave:</span>
+                            <span>Ja, super safe! Polizei fährt regelmäßig...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 3 -->
+                <div class="post-card" data-channel="tipps" onclick="openCommentsPage(3)">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="avatar">🌲</div>
+                            <div class="author-info">
+                                <h4>ForestVan_Tom</h4>
+                                <span class="channel-tag">💡 Tipps</span>
+                            </div>
+                        </div>
+                        <div class="post-actions-header">
+                            <span class="distance-badge">1.2 km</span>
+                            <button class="translate-btn" onclick="translatePost(3, event)" title="Übersetzen">🌐</button>
+                        </div>
+                    </div>
+                    <div class="post-content" id="post3-content">
+                        Tipp für alle die Richtung Grunewald wollen: Die Tankstelle an der Avus hat einen kostenlosen Wasseranschluss hinten am Gebäude. Super nette Mitarbeiter! 💧
+                    </div>
+                    <div class="post-translated" id="post3-translated"></div>
+                    <div class="post-actions">
+                        <button class="action-btn" onclick="toggleLike(this, event)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            <span>45</span>
+                        </button>
+                        <button class="action-btn" onclick="openCommentsPage(3, event)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            <span>12</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAB -->
+            <button class="fab" onclick="openCreatePost()">+</button>
+        </div>
+
+        <!-- CHANNELS PAGE -->
+        <div class="channels-page" id="channelsPage">
+            <div class="channels-header">
+                <h2>📡 Channels</h2>
+            </div>
+            <div class="channels-list">
+                <div class="channel-item" onclick="showToast('📍 Spots Channel')">
+                    <div class="channel-icon">📍</div>
+                    <div class="channel-info">
+                        <div class="channel-name">Spots</div>
+                        <div class="channel-desc">Teile und entdecke neue Stellplätze</div>
+                    </div>
+                    <div class="channel-posts">128</div>
+                </div>
+                <div class="channel-item" onclick="showToast('👥 Treffen Channel')">
+                    <div class="channel-icon">👥</div>
+                    <div class="channel-info">
+                        <div class="channel-name">Treffen</div>
+                        <div class="channel-desc">Organisiere spontane Vanlife-Treffen</div>
+                    </div>
+                    <div class="channel-posts">45</div>
+                </div>
+                <div class="channel-item" onclick="showToast('🆘 Hilfe Channel')">
+                    <div class="channel-icon">🆘</div>
+                    <div class="channel-info">
+                        <div class="channel-name">Hilfe</div>
+                        <div class="channel-desc">Fragen zu Reparatur, Recht & Co.</div>
+                    </div>
+                    <div class="channel-posts">67</div>
+                </div>
+                <div class="channel-item" onclick="showToast('💡 Tipps Channel')">
+                    <div class="channel-icon">💡</div>
+                    <div class="channel-info">
+                        <div class="channel-name">Tipps</div>
+                        <div class="channel-desc">Lifehacks für das Vanlife</div>
+                    </div>
+                    <div class="channel-posts">234</div>
+                </div>
+                <div class="channel-item" onclick="showToast('🏠 Wohnmobile Channel')">
+                    <div class="channel-icon">🏠</div>
+                    <div class="channel-info">
+                        <div class="channel-name">Wohnmobile</div>
+                        <div class="channel-desc">Austausch über Fahrzeuge & Ausbau</div>
+                    </div>
+                    <div class="channel-posts">189</div>
+                </div>
+                <div class="channel-item" onclick="showToast('🌍 Reisen Channel')">
+                    <div class="channel-icon">🌍</div>
+                    <div class="channel-info">
+                        <div class="channel-name">Reisen</div>
+                        <div class="channel-desc">Routen, Länder & Erlebnisse</div>
+                    </div>
+                    <div class="channel-posts">312</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MESSAGES PAGE -->
+        <div class="messages-page" id="messagesPage">
+            <div class="messages-header">
+                <h2>💬 Nachrichten</h2>
+            </div>
+
+            <div class="messages-tabs">
+                <button class="messages-tab active" onclick="switchMessagesTab('dms', this)">Direkt</button>
+                <button class="messages-tab" onclick="switchMessagesTab('groups', this)">Gruppen</button>
+            </div>
+
+            <!-- Direct Messages -->
+            <div class="message-list" id="dmsList">
+                <div class="message-item unread" onclick="showToast('Chat mit WanderVan_89')">
+                    <div class="message-avatar">🚐</div>
+                    <div class="message-content">
+                        <div class="message-name">
+                            WanderVan_89
+                            <span class="message-time">12:30</span>
+                        </div>
+                        <div class="message-preview">Bin in 5 Minuten am Café! 👋</div>
+                    </div>
+                    <div class="unread-dot"></div>
+                </div>
+                <div class="message-item" onclick="showToast('Chat mit CamperLife_Sarah')">
+                    <div class="message-avatar">🏕️</div>
+                    <div class="message-content">
+                        <div class="message-name">
+                            CamperLife_Sarah
+                            <span class="message-time">Gestern</span>
+                        </div>
+                        <div class="message-preview">Danke für die Info! Hat super geklappt 😊</div>
+                    </div>
+                </div>
+                <div class="message-item unread" onclick="showToast('Chat mit ForestVan_Tom')">
+                    <div class="message-avatar">🌲</div>
+                    <div class="message-content">
+                        <div class="message-name">
+                            ForestVan_Tom
+                            <span class="message-time">Gestern</span>
+                        </div>
+                        <div class="message-preview">Kennst du einen guten Spot in München?</div>
+                    </div>
+                    <div class="unread-dot"></div>
+                </div>
+                <div class="message-item" onclick="showToast('Chat mit NomadNina')">
+                    <div class="message-avatar">🌊</div>
+                    <div class="message-content">
+                        <div class="message-name">
+                            NomadNina
+                            <span class="message-time">Vor 2 Tagen</span>
+                        </div>
+                        <div class="message-preview">Super Treffen gestern! 👍</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Groups (hidden by default) -->
+            <div class="message-list" id="groupsList" style="display: none;">
+                <div class="message-item" onclick="showToast('Berlin Vanlife Community')">
+                    <div class="message-avatar" style="background: #ff6b6b;">👥</div>
+                    <div class="message-content">
+                        <div class="message-name">
+                            Berlin Vanlife
+                            <span class="message-time">10:45</span>
+                        </div>
+                        <div class="message-preview">NomadNina: Wer kommt zum Meetup am Samstag?</div>
+                    </div>
+                </div>
+                <div class="message-item" onclick="showToast('Deutschlandweite Community')">
+                    <div class="message-avatar" style="background: #4ecdc4;">🇩🇪</div>
+                    <div class="message-content">
+                        <div class="message-name">
+                            Vanlife DE
+                            <span class="message-time">Gestern</span>
+                        </div>
+                        <div class="message-preview">Admin: Neue Regeln für den Feed 📋</div>
+                    </div>
+                </div>
+                <div class="message-item" onclick="showToast('Vanlife Köln')">
+                    <div class="message-avatar" style="background: #95e1d3;">🏛️</div>
+                    <div class="message-content">
+                        <div class="message-name">
+                            Vanlife Köln
+                            <span class="message-time">Vor 3 Tagen</span>
+                        </div>
+                        <div class="message-preview">Mike: Neuer Spot am Rhein entdeckt!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICATIONS PAGE -->
+        <div class="notifications-page" id="notificationsPage">
+            <div class="notifications-header">
+                <h2>🔔 Benachrichtigungen</h2>
+            </div>
+            <div class="notifications-list">
+                <div class="notification-item unread">
+                    <div class="notification-icon like">❤️</div>
+                    <div class="notification-content">
+                        <div class="notification-text"><strong>WanderVan_89</strong> gefällt dein Post</div>
+                        <div class="notification-time">vor 5 Minuten</div>
+                    </div>
+                </div>
+                <div class="notification-item unread">
+                    <div class="notification-icon comment">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-text"><strong>CamperLife_Sarah</strong> hat kommentiert: "Super Tipp!"</div>
+                        <div class="notification-time">vor 15 Minuten</div>
+                    </div>
+                </div>
+                <div class="notification-item unread">
+                    <div class="notification-icon mention">@</div>
+                    <div class="notification-content">
+                        <div class="notification-text"><strong>ForestVan_Tom</strong> hat dich erwähnt</div>
+                        <div class="notification-time">vor 1 Stunde</div>
+                    </div>
+                </div>
+                <div class="notification-item">
+                    <div class="notification-icon like">❤️</div>
+                    <div class="notification-content">
+                        <div class="notification-text"><strong>NomadNina</strong> und 5 weitere gefällt dein Post</div>
+                        <div class="notification-time">vor 3 Stunden</div>
+                    </div>
+                </div>
+                <div class="notification-item">
+                    <div class="notification-icon system">✅</div>
+                    <div class="notification-content">
+                        <div class="notification-text">Dein Account wurde erfolgreich verifiziert!</div>
+                        <div class="notification-time">vor 2 Tagen</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAP PAGE -->
+        <div class="map-page" id="mapPage">
+            <div class="map-header">
+                <h2>🗺️ Karte</h2>
+                <p>Tipp auf die Karte, um einen Erkundungspin zu setzen</p>
+            </div>
+            <div id="mapContainer"></div>
+            
+            <div class="map-legend">
+                <div class="map-legend-item">
+                    <div class="legend-dot high"></div>
+                    <span>Viel los</span>
+                </div>
+                <div class="map-legend-item">
+                    <div class="legend-dot medium"></div>
+                    <span>Mittel</span>
+                </div>
+                <div class="map-legend-item">
+                    <div class="legend-dot low"></div>
+                    <span>Wenig</span>
+                </div>
+            </div>
+
+            <div class="map-info" id="mapInfo">
+                <button class="map-close-btn" onclick="closeMapInfo()">×</button>
+                <h3>📍 Postings an diesem Ort</h3>
+                <div id="mapPostList"></div>
+                <button class="explore-feed-btn" id="exploreFeedBtn" onclick="exploreFeedFromPin()" style="display:none;">
+                    🔍 Feed in dieser Region erkunden
+                </button>
+            </div>
+        </div>
+
+        <!-- PROFILE PAGE -->
+        <div class="profile-page" id="profilePage">
+            <div class="profile-header">
+                <div class="profile-avatar-large">😎</div>
+                <div class="profile-name">Julian Petermaier</div>
+                <div class="profile-handle">@JPE_Studio</div>
+                
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">23</div>
+                        <div class="profile-stat-label">Posts</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">156</div>
+                        <div class="profile-stat-label">Follower</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">89</div>
+                        <div class="profile-stat-label">Folgt</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-menu">
+                <div class="profile-menu-item" onclick="showToast('Meine Posts')">
+                    <span class="profile-menu-icon">📝</span>
+                    <span class="profile-menu-text">Meine Posts</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+                <div class="profile-menu-item" onclick="showToast('Gespeicherte Spots')">
+                    <span class="profile-menu-icon">📍</span>
+                    <span class="profile-menu-text">Gespeicherte Spots</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+                <div class="profile-menu-item" onclick="showToast('Benachrichtigungen')">
+                    <span class="profile-menu-icon">🔔</span>
+                    <span class="profile-menu-text">Benachrichtigungen</span>
+                    <span class="notification-badge" style="position: static;">3</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+                <div class="profile-menu-item" onclick="showToast('Sprache: Deutsch')">
+                    <span class="profile-menu-icon">🌍</span>
+                    <span class="profile-menu-text">Sprache: Deutsch</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+                <div class="profile-menu-item" onclick="showToast('Einstellungen')">
+                    <span class="profile-menu-icon">⚙️</span>
+                    <span class="profile-menu-text">Einstellungen</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+                <div class="profile-menu-item" onclick="showToast('Hilfe & Support')">
+                    <span class="profile-menu-icon">❓</span>
+                    <span class="profile-menu-text">Hilfe & Support</span>
+                    <span class="profile-menu-arrow">›</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Nav: Feed | Channels | Post | Messages | Profile -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('feed', this)">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>Feed</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('channels', this)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                <span>Channels</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('map', this)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 01-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                <span>Karte</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('messages', this)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <span>Nachrichten</span>
+                <span class="notification-badge">2</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('profile', this)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span>Profil</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- FLOATING ACTION BUTTON -->
+    <button class="fab" onclick="openCreatePost()">+</button>
+
+    <!-- ============================================
+         PLATZHALTER-SCREENS (Zu implementieren)
+         ============================================ -->
+
+    <!-- SETTINGS PAGE 
+         Beschreibung: Einstellungen-Hauptseite mit Kategorien:
+         - Account (E-Mail, Telefon, Passwort ändern)
+         - Privatsphäre (Sichtbarkeit, Blockierte Nutzer)
+         - Benachrichtigungen (Push, E-Mail, In-App)
+         - Datenschutz (Cookies, Analytics, Download Daten)
+         - Zugänglichkeit (Schriftgröße, Kontrast, Sprache)
+         - Über (Version, Impressum, AGB)
+    -->
+    <div class="settings-page" id="settingsPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- SAVED SPOTS PAGE 
+         Beschreibung: Gespeicherte Stellplätze und Orte:
+         - Liste aller gespeicherten Spots mit Karte-Vorschau
+         - Kategorien: Übernachtung, Schwimmen, Aussicht, Wasser/Tanken
+         - Offline-Verfügbarkeit markieren
+         - Notizen zu jedem Spot hinzufügen
+         - Navigation starten (Google/Apple Maps)
+    -->
+    <div class="saved-spots-page" id="savedSpotsPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- MY POSTS PAGE 
+         Beschreibung: Eigene Beiträge im Feed-Format:
+         - Alle eigenen Posts chronologisch
+         - Filter: Alle, Spots, Tipps, Hilfe
+         - Statistiken: Views, Likes, Kommentare pro Post
+         - Bearbeiten/Löschen Optionen
+         - Entwürfe (nicht veröffentlichte Posts)
+    -->
+    <div class="my-posts-page" id="myPostsPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- SPOT DETAIL PAGE 
+         Beschreibung: Detailansicht eines einzelnen Spots:
+         - Große Bilder (Carousel)
+         - Bewertung (Sterne + Anzahl)
+         - Beschreibung und Details (Preis, Ausstattung, Regeln)
+         - Karte mit exakter Position
+         - Aktuelle Belegung (Live von anderen Nutzern)
+         - Kommentare/Bewertungen anderer
+         - "Ich bin hier" Check-in Button
+         - Speichern/Teilen
+    -->
+    <div class="spot-detail-page" id="spotDetailPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- CHAT DETAIL PAGE 
+         Beschreibung: Einzelne Konversation:
+         - Header mit Profilbild, Name, Status (online/offline)
+         - Nachrichten-Verlauf (wie WhatsApp)
+         - Bilder/Voice Messages senden
+         - Standort teilen
+         - Spot empfehlen (aus gespeicherten)
+         - Blockieren/Melden Optionen
+    -->
+    <div class="chat-detail-page" id="chatDetailPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- SEARCH PAGE 
+         Beschreibung: Globale Suche:
+         - Suchleiste oben mit Filter-Chips
+         - Suche nach: Nutzern, Spots, Hashtags, Städten
+         - Letzte Suchanfragen
+         - Trending Hashtags
+         - Vorschläge basierend auf Nähe
+         - Ergebnisse in Tabs: Alle, Nutzer, Spots, Posts
+    -->
+    <div class="search-page" id="searchPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- DISCOVER/FILTER PAGE 
+         Beschreibung: Erweiterte Filter und Entdecken:
+         - Kartenansicht mit Filter-Overlay
+         - Filter: Entfernung (Radius), Ausstattung (Strom, Wasser, WC)
+         - Preiskategorie (kostenlos, günstig, mittel, teuer)
+         - Bewertung (min. X Sterne)
+         - Aktivität (viel/los wenig los)
+         - Saisonalität (ganzjährig, Sommer nur, Winter geeignet)
+         - Empfohlene Routen (Roadtrip-Ideen)
+    -->
+    <div class="discover-page" id="discoverPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- EDIT PROFILE PAGE 
+         Beschreibung: Profil bearbeiten:
+         - Profilbild ändern (Kamera/Galerie)
+         - Name, Bio, Standort
+         - Van-Details (Typ, Baujahr, Ausbau)
+         - Social Links (Instagram, YouTube, Website)
+         - Interessen/Tags (Surfen, Klettern, Städtetrips...)
+         - Sichtbarkeitseinstellungen
+    -->
+    <div class="edit-profile-page" id="editProfilePage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- LANGUAGE PAGE 
+         Beschreibung: Sprachauswahl:
+         - Liste aller verfügbaren Sprachen
+         - Automatische Übersetzung aktivieren/deaktivieren
+         - Übersetzungsqualität (schnell/genau)
+         - Original immer anzeigen Option
+         - Favoritensprachen (mehrsprachige Nutzer)
+    -->
+    <div class="language-page" id="languagePage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- HELP & SUPPORT PAGE 
+         Beschreibung: Hilfe und Support:
+         - FAQ (häufige Fragen)
+         - Tutorial/Onboarding wiederholen
+         - Kontaktformular
+         - Community Guidelines
+         - Sicherheitstipps für Vanlifer
+         - Report a Bug
+         - Feature wünschen
+         - Live-Chat Support (wenn verfügbar)
+    -->
+    <div class="help-page" id="helpPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- NOTIFICATION SETTINGS PAGE 
+         Beschreibung: Detaillierte Benachrichtigungseinstellungen:
+         - Push-Benachrichtigungen (An/Aus)
+         - E-Mail Benachrichtigungen (täglich, wöchentlich, nie)
+         - Likes auf eigene Posts
+         - Kommentare
+         - Neue Follower
+         - Direktnachrichten
+         - Nähe-Posts (jemand postet in 5km)
+         - Treffen-Einladungen
+         - System/Updates
+         - Quiet Hours (keine Benachrichtigungen 22-08 Uhr)
+    -->
+    <div class="notification-settings-page" id="notificationSettingsPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- BLOCKED USERS PAGE 
+         Beschreibung: Blockierte und gemeldete Nutzer verwalten:
+         - Liste blockierter Nutzer mit Profilbild
+         - Grund der Blockierung
+         - Datum der Blockierung
+         - Entblocken Button
+         - Gemeldete Inhalte Übersicht
+         - Status der Meldungen (in Prüfung, erledigt)
+    -->
+    <div class="blocked-users-page" id="blockedUsersPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- FOLLOWERS/FOLLOWING PAGE 
+         Beschreibung: Follower-Listen:
+         - Tabs: Follower | Folge ich
+         - Suchleiste in der Liste
+         - Sortieren: Neueste, Alphabetisch
+         - Entfolgen/Folgen Button
+         - Gemeinsame Follower anzeigen
+         - Zu Profil navigieren
+    -->
+    <div class="followers-page" id="followersPage" style="display:none;">
+        <!-- TODO: Implementieren -->
+    </div>
+
+    <!-- COMMENTS PAGE (Full Page) -->
+    <div class="comments-page" id="commentsPage">
+        <div class="comments-header">
+            <button class="back-btn" onclick="closeCommentsPage()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h3>Kommentare</h3>
+        </div>
+        
+        <div class="original-post-preview" id="originalPostPreview"></div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message" data-post="1">
+                <div class="message-avatar-small">🌊</div>
+                <div class="message-bubble">
+                    Welches Café genau? Bin gleich da! ☕️
+                    <div class="message-time">12:15</div>
+                </div>
+            </div>
+            <div class="message own" data-post="1">
+                <div class="message-bubble">
+                    Das kleine Blaue direkt am Kanal! Kannst nicht verfehlen 👍
+                    <div class="message-time">12:18</div>
+                </div>
+            </div>
+            <div class="message" data-post="1">
+                <div class="message-avatar-small">🌊</div>
+                <div class="message-bubble">
+                    Perfekt, danke! Bis gleich 😊
+                    <div class="message-time">12:19</div>
+                </div>
+            </div>
+            <div class="message" data-post="1">
+                <div class="message-avatar-small">🏔️</div>
+                <div class="message-bubble">
+                    Ich komm auch vorbei, hab noch 10 Minuten Fahrt!
+                    <div class="message-time">12:21</div>
+                </div>
+            </div>
+            <div class="message" data-post="2">
+                <div class="message-avatar-small">🚐</div>
+                <div class="message-bubble">
+                    Ja, super safe! Polizei fährt regelmäßig vorbei und es sind immer andere Vanlifer da.
+                    <div class="message-time">11:45</div>
+                </div>
+            </div>
+            <div class="message own" data-post="2">
+                <div class="message-bubble">
+                    Danke für die Info! Dann probiere ich es heute Nacht aus
+                    <div class="message-time">11:52</div>
+                </div>
+            </div>
+            <div class="message" data-post="2">
+                <div class="message-avatar-small">🚐</div>
+                <div class="message-bubble">
+                    Ich bin grad auch da, können uns gerne kennenlernen!
+                    <div class="message-time">12:05</div>
+                </div>
+            </div>
+            <div class="message" data-post="2">
+                <div class="message-avatar-small">🌲</div>
+                <div class="message-bubble">
+                    Fahrrad lieber im Van lassen oder anschließen 👍
+                    <div class="message-time">12:08</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <input type="text" class="chat-input" placeholder="Kommentar schreiben...">
+                <button class="send-btn">
+                    <svg fill="none" stroke="white" viewBox="0 0 24 24" width="20" height="20" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Post Modal -->
+    <div class="modal-overlay" id="createPostOverlay" onclick="closeCreatePost(event)"></div>
+    <div class="modal" id="createPostModal">
+        <div class="modal-header">
+            <h3>Neuer Post</h3>
+            <button class="close-btn" onclick="closeCreatePost()">×</button>
+        </div>
+        <div class="create-post-content">
+            <div class="channel-select">
+                <button class="channel-option selected" onclick="selectChannel(this)">📍 Spots</button>
+                <button class="channel-option" onclick="selectChannel(this)">👥 Treffen</button>
+                <button class="channel-option" onclick="selectChannel(this)">🆘 Hilfe</button>
+                <button class="channel-option" onclick="selectChannel(this)">💡 Tipps</button>
+            </div>
+            <textarea class="create-post-textarea" placeholder="Was ist los in deiner Nähe?" maxlength="500" oninput="updateCharCount(this)"></textarea>
+            <div class="char-count">0/500</div>
+        </div>
+        <div class="create-post-actions">
+            <span style="font-size: 13px; color: #666;">📍 Wird im 5km Radius geteilt</span>
+            <button class="post-btn" onclick="submitPost()">Posten</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"></div>
+
+    <script>
+        // Onboarding
+        function closeOnboarding() {
+            document.getElementById('onboarding').classList.add('hidden');
+        }
+
+        // Navigation
+        function switchTab(tab, btn) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.channels-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.messages-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.notifications-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.profile-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.map-page').forEach(p => p.classList.remove('active'));
+            
+            // Remove active from all nav items
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            // Show selected page
+            if (tab === 'feed') {
+                document.getElementById('feedPage').classList.add('active');
+            } else if (tab === 'channels') {
+                document.getElementById('channelsPage').classList.add('active');
+            } else if (tab === 'messages') {
+                document.getElementById('messagesPage').classList.add('active');
+            } else if (tab === 'notifications') {
+                document.getElementById('notificationsPage').classList.add('active');
+            } else if (tab === 'profile') {
+                document.getElementById('profilePage').classList.add('active');
+            } else if (tab === 'map') {
+                document.getElementById('mapPage').classList.add('active');
+                initMap();
+            }
+            
+            // Set active nav item
+            btn.classList.add('active');
+        }
+
+        // Channel Filter
+        function filterChannel(channel, btn) {
+            document.querySelectorAll('.channel-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            
+            document.querySelectorAll('.post-card').forEach(post => {
+                if (channel === 'all' || post.dataset.channel === channel) {
+                    post.style.display = 'block';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+
+        // Messages Tabs
+        function switchMessagesTab(tab, btn) {
+            document.querySelectorAll('.messages-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            
+            document.getElementById('dmsList').style.display = tab === 'dms' ? 'block' : 'none';
+            document.getElementById('groupsList').style.display = tab === 'groups' ? 'block' : 'none';
+        }
+
+        // Translate Post
+        function translatePost(postId, event) {
+            event.stopPropagation();
+            const translated = document.getElementById('post' + postId + '-translated');
+            translated.classList.toggle('visible');
+            showToast(translated.classList.contains('visible') ? 'Übersetzung angezeigt' : 'Übersetzung ausgeblendet');
+        }
+
+        // Like
+        function toggleLike(btn, event) {
+            event.stopPropagation();
+            const isLiked = btn.classList.contains('liked');
+            const span = btn.querySelector('span');
+            let count = parseInt(span.textContent);
+            
+            if (isLiked) {
+                btn.classList.remove('liked');
+                btn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg><span>${count - 1}</span>`;
+            } else {
+                btn.classList.add('liked');
+                btn.innerHTML = `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg><span>${count + 1}</span>`;
+            }
+        }
+
+        // Comments Page (Full Page)
+        function openCommentsPage(postId, event) {
+            if (event) event.stopPropagation();
+            
+            const postCards = document.querySelectorAll('.post-card');
+            const postCard = postCards[postId - 1];
+            const preview = document.getElementById('originalPostPreview');
+            
+            // Clone the post header and content for preview
+            const header = postCard.querySelector('.post-header').cloneNode(true);
+            const content = postCard.querySelector('.post-content').cloneNode(true);
+            preview.innerHTML = '';
+            preview.appendChild(header);
+            preview.appendChild(content);
+            
+            // Filter messages for this post
+            const messages = document.querySelectorAll('#chatMessages .message');
+            messages.forEach(msg => {
+                msg.style.display = parseInt(msg.dataset.post) === postId ? 'flex' : 'none';
+            });
+            
+            document.getElementById('commentsPage').classList.add('active');
+        }
+
+        function closeCommentsPage() {
+            document.getElementById('commentsPage').classList.remove('active');
+        }
+
+        // Create Post Modal
+        function openCreatePost() {
+            document.getElementById('createPostOverlay').classList.add('active');
+            document.getElementById('createPostModal').classList.add('active');
+        }
+
+        function closeCreatePost(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('createPostOverlay').classList.remove('active');
+            document.getElementById('createPostModal').classList.remove('active');
+        }
+
+        function selectChannel(btn) {
+            document.querySelectorAll('.channel-option').forEach(c => c.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        function updateCharCount(textarea) {
+            document.querySelector('.char-count').textContent = textarea.value.length + '/500';
+        }
+
+        function submitPost() {
+            const textarea = document.querySelector('.create-post-textarea');
+            if (textarea.value.trim()) {
+                showToast('Post erstellt!');
+                textarea.value = '';
+                updateCharCount(textarea);
+                closeCreatePost();
+            }
+        }
+
+        // Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2000);
+        }
+
+        // ============================================
+        // MAP FUNCTIONALITY
+        // ============================================
+        let map = null;
+        let heatLayer = null;
+        let explorationMarker = null;
+        let mapInitialized = false;
+        let currentPinLocation = null;
+
+        // Mock data: Global posting hotspots
+        const postLocations = [
+            // Portugal
+            { lat: 38.7223, lng: -9.1393, intensity: 0.9, posts: 45, city: "Lissabon", samplePosts: [
+                { author: "VanLife_PT", text: "Cascais Strand - perfekter Spot! 🏖️", time: "vor 2h" },
+                { author: "NomadNina", text: "Belém Tower bei Sonnenuntergang 😍", time: "vor 5h" }
+            ]},
+            { lat: 37.0179, lng: -7.9308, intensity: 0.8, posts: 32, city: "Faro/Algarve", samplePosts: [
+                { author: "SunChaser", text: "Lagos ist unglaublich! 🌅", time: "vor 1h" },
+                { author: "BeachVan", text: "Geheimer Strand bei Salema 🏝️", time: "vor 3h" }
+            ]},
+            // Spain
+            { lat: 41.3851, lng: 2.1734, intensity: 0.85, posts: 38, city: "Barcelona", samplePosts: [
+                { author: "Mediterrano", text: "Park Güell morgens ist magisch ✨", time: "vor 4h" },
+                { author: "CoastalVan", text: "Costa Brava hidden spots 🏕️", time: "vor 6h" }
+            ]},
+            { lat: 39.4699, lng: -0.3763, intensity: 0.7, posts: 22, city: "Valencia", samplePosts: [
+                { author: "OrangeVan", text: "Albufera See bei Sonnenuntergang 🌊", time: "vor 2h" }
+            ]},
+            { lat: 36.7213, lng: -4.4214, intensity: 0.75, posts: 28, city: "Málaga", samplePosts: [
+                { author: "AndaluzVan", text: "Nerja Höhlen - wow! 🤯", time: "vor 3h" }
+            ]},
+            // France
+            { lat: 43.2965, lng: 5.3698, intensity: 0.8, posts: 35, city: "Marseille", samplePosts: [
+                { author: "ProvenceVan", text: "Calanques sind atemberaubend! 🏔️", time: "vor 1h" }
+            ]},
+            { lat: 43.6047, lng: 1.4442, intensity: 0.6, posts: 18, city: "Toulouse", samplePosts: [
+                { author: "PinkCity", text: "Carcassonne Tagesausflug 🏰", time: "vor 4h" }
+            ]},
+            { lat: 48.8566, lng: 2.3522, intensity: 0.9, posts: 52, city: "Paris", samplePosts: [
+                { author: "CityNomad", text: "Versailles Gärten zum picknicken 🌳", time: "vor 30min" },
+                { author: "ArtVan", text: "Montmartre am frühen Morgen 🎨", time: "vor 2h" }
+            ]},
+            // Germany
+            { lat: 52.5200, lng: 13.4050, intensity: 0.85, posts: 41, city: "Berlin", samplePosts: [
+                { author: "BerlinVan_Dave", text: "Grunewald See ist top! 🌲", time: "vor 1h" },
+                { author: "SpreeNomad", text: "Tempelhofer Feld - freier Platz 🛩️", time: "vor 3h" }
+            ]},
+            { lat: 48.1351, lng: 11.5820, intensity: 0.75, posts: 29, city: "München", samplePosts: [
+                { author: "AlpenVan", text: "Starnberger See perfekt! 🏔️", time: "vor 2h" }
+            ]},
+            { lat: 50.9375, lng: 6.9603, intensity: 0.6, posts: 15, city: "Köln", samplePosts: [
+                { author: "RhineVan", text: "Rheinauhafen steht frei ⚓", time: "vor 5h" }
+            ]},
+            // Austria
+            { lat: 48.2082, lng: 16.3738, intensity: 0.65, posts: 19, city: "Wien", samplePosts: [
+                { author: "DanubeVan", text: "Donauinsel bei Nacht 🌙", time: "vor 3h" }
+            ]},
+            { lat: 47.2692, lng: 11.4041, intensity: 0.7, posts: 24, city: "Innsbruck", samplePosts: [
+                { author: "TyrolVan", text: "Nordkette Sonnenaufgang 🌄", time: "vor 1h" }
+            ]},
+            // Italy
+            { lat: 45.4642, lng: 9.1900, intensity: 0.8, posts: 33, city: "Mailand", samplePosts: [
+                { author: "LakeLover", text: "Comer See - Traum! 💙", time: "vor 2h" }
+            ]},
+            { lat: 43.7696, lng: 11.2558, intensity: 0.85, posts: 40, city: "Florenz", samplePosts: [
+                { author: "TuscanSun", text: "Chianti Region - Weinberge! 🍷", time: "vor 4h" }
+            ]},
+            { lat: 41.9028, lng: 12.4964, intensity: 0.9, posts: 48, city: "Rom", samplePosts: [
+                { author: "AncientVan", text: "Ostia Antica Parkplatz frei 🏛️", time: "vor 1h" },
+                { author: "VaticanVan", text: "Tiber Ufer über Nacht ⛺", time: "vor 6h" }
+            ]},
+            { lat: 45.4408, lng: 12.3155, intensity: 0.8, posts: 36, city: "Venedig", samplePosts: [
+                { author: "LagunaVan", text: "Lido di Jesolo preiswert 🏖️", time: "vor 2h" }
+            ]},
+            { lat: 40.8518, lng: 14.2681, intensity: 0.75, posts: 31, city: "Neapel", samplePosts: [
+                { author: "VolcanoVan", text: "Vesuv Sonnenaufgang 🔥", time: "vor 3h" }
+            ]},
+            { lat: 38.1157, lng: 13.3615, intensity: 0.7, posts: 26, city: "Palermo", samplePosts: [
+                { author: "SicilyVan", text: "Cefalù Strand - mega! 🌊", time: "vor 5h" }
+            ]},
+            // Croatia
+            { lat: 43.5081, lng: 16.4402, intensity: 0.85, posts: 38, city: "Split", samplePosts: [
+                { author: "AdriaVan", text: "Hvar Fähre easy! ⛴️", time: "vor 2h" },
+                { author: "CroatiaNomad", text: "Krka Wasserfälle 🌊", time: "vor 4h" }
+            ]},
+            { lat: 44.1194, lng: 15.2314, intensity: 0.9, posts: 47, city: "Zadar", samplePosts: [
+                { author: "SunsetChaser", text: "Sea Organ at sunset! 🎵", time: "vor 1h" },
+                { author: "PagVan", text: "Pag Island parties! 🎉", time: "vor 3h" }
+            ]},
+            { lat: 42.6507, lng: 18.0944, intensity: 0.8, posts: 34, city: "Dubrovnik", samplePosts: [
+                { author: "KingVan", text: "Game of Thrones tour 🏰", time: "vor 2h" }
+            ]},
+            // Greece
+            { lat: 37.9838, lng: 23.7275, intensity: 0.85, posts: 39, city: "Athen", samplePosts: [
+                { author: "AcroVan", text: "Akropolis bei Nacht beleuchtet 🏛️", time: "vor 1h" }
+            ]},
+            { lat: 36.3932, lng: 25.4615, intensity: 0.9, posts: 51, city: "Santorin", samplePosts: [
+                { author: "AegeanVan", text: "Oia Sonnenuntergang - unreal! 🌅", time: "vor 30min" },
+                { author: "WhiteBlue", text: "Red Beach sehr heiß 🏖️", time: "vor 2h" }
+            ]},
+            { lat: 35.3387, lng: 25.1442, intensity: 0.75, posts: 29, city: "Kreta", samplePosts: [
+                { author: "MinoanVan", text: "Balos Beach - schwieriger Weg aber wert! 🏝️", time: "vor 4h" }
+            ]},
+            // Turkey
+            { lat: 41.0082, lng: 28.9784, intensity: 0.8, posts: 35, city: "Istanbul", samplePosts: [
+                { author: "BosphorusVan", text: "Kadiköf Street Food Tour 🥙", time: "vor 2h" }
+            ]},
+            // Morocco
+            { lat: 31.6295, lng: -7.9811, intensity: 0.7, posts: 25, city: "Marrakesch", samplePosts: [
+                { author: "SaharaVan", text: "Atlas Gebirge Fahrt spektakulär! 🏔️", time: "vor 3h" }
+            ]},
+            // Netherlands
+            { lat: 52.3676, lng: 4.9041, intensity: 0.65, posts: 18, city: "Amsterdam", samplePosts: [
+                { author: "CanalVan", text: "Zandvoort Strand Parkplatz 🏖️", time: "vor 5h" }
+            ]},
+            // Belgium
+            { lat: 50.8503, lng: 4.3517, intensity: 0.55, posts: 14, city: "Brüssel", samplePosts: [
+                { author: "EUvan", text: "Atomium bei Nacht 💡", time: "vor 6h" }
+            ]},
+            // Switzerland
+            { lat: 46.9480, lng: 7.4474, intensity: 0.7, posts: 22, city: "Bern", samplePosts: [
+                { author: "AlpsVan", text: "Interlaken Basecamp 🏕️", time: "vor 4h" }
+            ]},
+            // UK
+            { lat: 51.5074, lng: -0.1278, intensity: 0.8, posts: 37, city: "London", samplePosts: [
+                { author: "ThamesVan", text: "Brighton Beach vibes 🏖️", time: "vor 2h" }
+            ]},
+            // Iceland
+            { lat: 64.1466, lng: -21.9426, intensity: 0.75, posts: 28, city: "Reykjavik", samplePosts: [
+                { author: "NordicVan", text: "Ring Road day 3 - Skógafoss! 🌈", time: "vor 1h" }
+            ]},
+            // Norway
+            { lat: 59.9139, lng: 10.7522, intensity: 0.65, posts: 19, city: "Oslo", samplePosts: [
+                { author: "FjordVan", text: "Lofoten unglaublich! 🏔️", time: "vor 3h" }
+            ]},
+            // Sweden
+            { lat: 59.3293, lng: 18.0686, intensity: 0.6, posts: 16, city: "Stockholm", samplePosts: [
+                { author: "ScandiVan", text: "Archipel perfekt für Kayak! 🛶", time: "vor 5h" }
+            ]},
+            // Denmark
+            { lat: 55.6761, lng: 12.5683, intensity: 0.55, posts: 13, city: "Kopenhagen", samplePosts: [
+                { author: "VikingVan", text: "Skagen - Zusammenfluss der Meere 🌊", time: "vor 4h" }
+            ]},
+            // Slovenia
+            { lat: 46.0569, lng: 14.5058, intensity: 0.7, posts: 23, city: "Ljubljana", samplePosts: [
+                { author: "JulianVan", text: "Bled See - Märchen! ✨", time: "vor 2h" }
+            ]},
+            // Montenegro
+            { lat: 42.4304, lng: 18.7676, intensity: 0.65, posts: 17, city: "Kotor", samplePosts: [
+                { author: "BayVan", text: "Bucht von Kotor - spektakulär! 🏔️", time: "vor 3h" }
+            ]},
+            // Albania
+            { lat: 41.3275, lng: 19.8187, intensity: 0.55, posts: 12, city: "Tirana", samplePosts: [
+                { author: "BalkanVan", text: "Himara Beach - verstecktes Juwel! 💎", time: "vor 6h" }
+            ]},
+            // Bulgaria
+            { lat: 42.6977, lng: 23.3219, intensity: 0.5, posts: 10, city: "Sofia", samplePosts: [
+                { author: "RoseVan", text: "Plovdiv Altstadt sehr cool! 🏛️", time: "vor 5h" }
+            ]},
+            // Romania
+            { lat: 44.4268, lng: 26.1025, intensity: 0.55, posts: 13, city: "Bukarest", samplePosts: [
+                { author: "DraculaVan", text: "Transsilvanien Roadtrip 🧛", time: "vor 4h" }
+            ]},
+            // Czech Republic
+            { lat: 50.0755, lng: 14.4378, intensity: 0.7, posts: 24, city: "Prag", samplePosts: [
+                { author: "BohemiaVan", text: "Karlsbrücke morgens leer! 😍", time: "vor 2h" }
+            ]},
+            // Poland
+            { lat: 52.2297, lng: 21.0122, intensity: 0.6, posts: 15, city: "Warschau", samplePosts: [
+                { author: "VistulaVan", text: "Krakau Altstadt Nachtleben 🌃", time: "vor 3h" }
+            ]},
+            // Hungary
+            { lat: 47.4979, lng: 19.0402, intensity: 0.65, posts: 18, city: "Budapest", samplePosts: [
+                { author: "DanubeVan", text: "Thermen sind ein Muss! ♨️", time: "vor 1h" }
+            ]},
+            // Serbia
+            { lat: 44.7866, lng: 20.4489, intensity: 0.5, posts: 11, city: "Belgrad", samplePosts: [
+                { author: "SavaVan", text: "Ada Ciganlija Strand 🏖️", time: "vor 4h" }
+            ]},
+            // Bosnia
+            { lat: 43.8563, lng: 18.4131, intensity: 0.55, posts: 12, city: "Sarajevo", samplePosts: [
+                { author: "MostarVan", text: "Mostar Brücke - atemberaubend! 🌉", time: "vor 5h" }
+            ]},
+            // USA
+            { lat: 34.0522, lng: -118.2437, intensity: 0.9, posts: 55, city: "Los Angeles", samplePosts: [
+                { author: "CaliVan", text: "Malibu Strand bei Sonnenuntergang 🌅", time: "vor 1h" },
+                { author: "HighwayOne", text: "Big Sur unglaubliche Aussicht! 🛣️", time: "vor 3h" }
+            ]},
+            { lat: 37.7749, lng: -122.4194, intensity: 0.85, posts: 42, city: "San Francisco", samplePosts: [
+                { author: "BayVan_US", text: "Muir Woods Riesenmammutbäume! 🌲", time: "vor 2h" }
+            ]},
+            // Canada
+            { lat: 49.2827, lng: -123.1207, intensity: 0.7, posts: 23, city: "Vancouver", samplePosts: [
+                { author: "MapleVan", text: "Banff Nationalpark - traumhaft! 🏔️", time: "vor 4h" }
+            ]},
+            // Mexico
+            { lat: 23.6345, lng: -102.5528, intensity: 0.6, posts: 16, city: "Mexiko", samplePosts: [
+                { author: "TacoVan", text: "Baja California Sur Strände 🏖️", time: "vor 5h" }
+            ]},
+            // South America - Brazil
+            { lat: -22.9068, lng: -43.1729, intensity: 0.75, posts: 31, city: "Rio de Janeiro", samplePosts: [
+                { author: "SambaVan", text: "Copacabana sunrise! 🌅", time: "vor 2h" }
+            ]},
+            // Australia
+            { lat: -33.8688, lng: 151.2093, intensity: 0.8, posts: 36, city: "Sydney", samplePosts: [
+                { author: "OzVan", text: "Great Ocean Road spektakulär! 🌊", time: "vor 3h" }
+            ]},
+            // New Zealand
+            { lat: -41.2865, lng: 174.7762, intensity: 0.75, posts: 29, city: "Wellington", samplePosts: [
+                { author: "KiwiVan", text: "Milford Sound - atemberaubend! 🏔️", time: "vor 4h" }
+            ]},
+            // South Africa
+            { lat: -33.9249, lng: 18.4241, intensity: 0.65, posts: 20, city: "Kapstadt", samplePosts: [
+                { author: "SafariVan", text: "Garden Route Roadtrip 🛣️", time: "vor 6h" }
+            ]},
+            // Thailand
+            { lat: 13.7563, lng: 100.5018, intensity: 0.8, posts: 37, city: "Bangkok", samplePosts: [
+                { author: "ThaiVan", text: "Ayutthaya Tagesausflug 🏛️", time: "vor 2h" },
+                { author: "IslandHop", text: "Koh Tao Tauchen! 🤿", time: "vor 4h" }
+            ]},
+            // Vietnam
+            { lat: 21.0278, lng: 105.8342, intensity: 0.7, posts: 26, city: "Hanoi", samplePosts: [
+                { author: "PhoVan", text: "Ha Long Bay muss man gesehen haben! 🏝️", time: "vor 3h" }
+            ]},
+            // Indonesia
+            { lat: -8.4095, lng: 115.1889, intensity: 0.85, posts: 43, city: "Bali", samplePosts: [
+                { author: "BaliVan", text: "Ubud Reisfelder Sonnenaufgang 🌾", time: "vor 1h" },
+                { author: "SurfVan", text: "Uluwatu Wellen sind perfekt! 🏄", time: "vor 3h" }
+            ]},
+            // Japan
+            { lat: 35.6762, lng: 139.6503, intensity: 0.8, posts: 38, city: "Tokio", samplePosts: [
+                { author: "NipponVan", text: "Mt. Fuji bei klarem Wetter! 🗻", time: "vor 2h" }
+            ]},
+            // India
+            { lat: 28.6139, lng: 77.2090, intensity: 0.65, posts: 21, city: "Delhi", samplePosts: [
+                { author: "HimalayaVan", text: "Taj Mahal Sonnenaufgang 🕌", time: "vor 4h" }
+            ]}
+        ];
+
+        function initMap() {
+            if (mapInitialized) return;
+            
+            // Initialize Leaflet map
+            map = L.map('mapContainer', {
+                zoomControl: false
+            }).setView([48.8566, 2.3522], 4); // Center on Europe
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            // Add zoom control to top right
+            L.control.zoom({
+                position: 'topright'
+            }).addTo(map);
+
+            // Prepare heatmap data
+            const heatData = postLocations.map(loc => [loc.lat, loc.lng, loc.intensity]);
+
+            // Add heatmap layer
+            heatLayer = L.heatLayer(heatData, {
+                radius: 30,
+                blur: 25,
+                maxZoom: 10,
+                max: 1.0,
+                gradient: {
+                    0.2: '#FFD700',  // Yellow (low)
+                    0.5: '#FFA500',  // Orange (medium)
+                    0.8: '#FF4500',  // Red-orange (high)
+                    1.0: '#FF0000'   // Red (very high)
+                }
+            }).addTo(map);
+
+            // Add click handler for exploration pin
+            map.on('click', function(e) {
+                setExplorationPin(e.latlng);
+            });
+
+            mapInitialized = true;
+        }
+
+        function setExplorationPin(latlng) {
+            // Save location for feed exploration
+            currentPinLocation = latlng;
+
+            // Remove existing marker
+            if (explorationMarker) {
+                map.removeLayer(explorationMarker);
+            }
+
+            // Add new marker
+            const customIcon = L.divIcon({
+                className: 'custom-pin',
+                html: '<div style="background:#FF8F00;width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:14px;">📍</div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 24]
+            });
+
+            explorationMarker = L.marker(latlng, { icon: customIcon }).addTo(map);
+            
+            // Show nearby posts
+            showNearbyPosts(latlng);
+            
+            // Show toast
+            showToast('📍 Erkundungspin gesetzt!');
+        }
+
+        function showNearbyPosts(latlng) {
+            const infoPanel = document.getElementById('mapInfo');
+            const postList = document.getElementById('mapPostList');
+            
+            // Find posts within ~200km radius
+            const nearbyLocations = postLocations.filter(loc => {
+                const distance = getDistance(latlng.lat, latlng.lng, loc.lat, loc.lng);
+                return distance < 200; // km
+            }).sort((a, b) => {
+                const distA = getDistance(latlng.lat, latlng.lng, a.lat, a.lng);
+                const distB = getDistance(latlng.lat, latlng.lng, b.lat, b.lng);
+                return distA - distB;
+            });
+
+            if (nearbyLocations.length === 0) {
+                postList.innerHTML = '<p style="color:#999;font-size:14px;padding:10px 0;">Keine Postings in der Nähe gefunden.<br>Tipp auf einen roten Bereich für mehr Aktivität!</p>';
+                document.getElementById('exploreFeedBtn').style.display = 'none';
+            } else {
+                let html = '';
+                nearbyLocations.slice(0, 3).forEach(loc => {
+                    const distance = Math.round(getDistance(latlng.lat, latlng.lng, loc.lat, loc.lng));
+                    html += `<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;">
+                        <div style="font-weight:600;color:#FF8F00;font-size:14px;">${loc.city} (${distance} km)</div>
+                        <div style="font-size:12px;color:#666;margin-top:4px;">${loc.posts} Postings in dieser Region</div>
+                    </div>`;
+                    
+                    loc.samplePosts.forEach(post => {
+                        html += `<div class="map-post-item">
+                            <div class="map-post-author">${post.author}</div>
+                            <div class="map-post-text">${post.text}</div>
+                            <div class="map-post-time">${post.time}</div>
+                        </div>`;
+                    });
+                });
+                postList.innerHTML = html;
+                document.getElementById('exploreFeedBtn').style.display = 'block';
+            }
+            
+            infoPanel.classList.add('active');
+        }
+
+        function closeMapInfo() {
+            document.getElementById('mapInfo').classList.remove('active');
+        }
+
+        function exploreFeedFromPin() {
+            if (!currentPinLocation) return;
+            
+            // Close map info
+            closeMapInfo();
+            
+            // Switch to feed
+            document.querySelectorAll('.page, .channels-page, .messages-page, .notifications-page, .profile-page, .map-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('feedPage').classList.add('active');
+            document.querySelector('.nav-item').classList.add('active');
+            
+            // Show toast with location info
+            showToast(`🔍 Zeige Feed für diese Region`);
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Calculate distance between two points using Haversine formula
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // ============================================
+        // PLATZHALTER-FUNKTIONEN (Zu implementieren)
+        // ============================================
+
+        /* SETTINGS PAGE FUNCTIONS
+         * openSettings() - Öffnet die Einstellungen-Seite
+         * navigateToSetting(category) - Navigiert zu einer Kategorie
+         * toggleSetting(settingId) - Aktiviert/Deaktiviert eine Einstellung
+         */
+
+        /* SAVED SPOTS PAGE FUNCTIONS
+         * openSavedSpots() - Öffnet die gespeicherten Spots
+         * filterSpots(category) - Filtert nach Kategorie
+         * sortSpots(sortBy) - Sortiert die Liste
+         * openSpotDetail(spotId) - Öffnet Spot-Detailansicht
+         * deleteSpot(spotId) - Löscht einen gespeicherten Spot
+         * addNoteToSpot(spotId, note) - Fügt Notiz hinzu
+         */
+
+        /* MY POSTS PAGE FUNCTIONS
+         * openMyPosts() - Öffnet "Meine Posts"
+         * filterMyPosts(filter) - Filtert eigene Posts
+         * editPost(postId) - Bearbeitet einen Post
+         * deletePost(postId) - Löscht einen Post
+         * viewPostStats(postId) - Zeigt Statistiken an
+         */
+
+        /* SPOT DETAIL PAGE FUNCTIONS
+         * openSpotDetail(spotId) - Öffnet Spot-Detail
+         * toggleSaveSpot(spotId) - Speichert/Entfernt Spot
+         * checkInToSpot(spotId) - "Ich bin hier" Check-in
+         * shareSpot(spotId) - Teilt den Spot
+         * rateSpot(spotId, rating) - Bewertet den Spot
+         * openSpotMap(spotId) - Zeigt Spot in Karte
+         */
+
+        /* CHAT DETAIL PAGE FUNCTIONS
+         * openChat(userId) - Öffnet Konversation mit Nutzer
+         * sendMessage(text) - Sendet Textnachricht
+         * sendImage(imageData) - Sendet Bild
+         * sendLocation() - Sendet aktuellen Standort
+         * sendSpotRecommendation(spotId) - Empfiehlt gespeicherten Spot
+         * blockUser(userId) - Blockiert Nutzer
+         * reportUser(userId) - Meldet Nutzer
+         */
+
+        /* SEARCH PAGE FUNCTIONS
+         * openSearch() - Öffnet Suchseite
+         * performSearch(query) - Führt Suche aus
+         * clearSearchHistory() - Löscht Suchverlauf
+         * searchUsers(query) - Sucht nach Nutzern
+         * searchSpots(query) - Sucht nach Spots
+         * searchPosts(query) - Sucht nach Posts
+         */
+
+        /* DISCOVER/FILTER PAGE FUNCTIONS
+         * openDiscover() - Öffnet Entdecken-Seite
+         * applyFilters(filters) - Wendet Filter an
+         * resetFilters() - Setzt Filter zurück
+         * setRadius(km) - Setzt Suchradius
+         * toggleAmenity(amenity) - Aktiviert/Deaktiviert Ausstattungsfilter
+         * setPriceRange(min, max) - Setzt Preisspanne
+         * loadRecommendedRoutes() - Lädt empfohlene Roadtrips
+         */
+
+        /* EDIT PROFILE PAGE FUNCTIONS
+         * openEditProfile() - Öffnet Profil-Bearbeiten
+         * changeProfilePicture(source) - Ändert Profilbild
+         * saveProfileChanges() - Speichert Änderungen
+         * addVanDetail(key, value) - Fügt Van-Detail hinzu
+         * removeInterest(interest) - Entfernt Interesse
+         * addInterest(interest) - Fügt Interesse hinzu
+         */
+
+        /* LANGUAGE PAGE FUNCTIONS
+         * openLanguageSettings() - Öffnet Spracheinstellungen
+         * selectLanguage(langCode) - Wählt Sprache
+         * toggleAutoTranslate() - Aktiviert/Deaktiviert automatische Übersetzung
+         * setTranslationQuality(quality) - Setzt Übersetzungsqualität
+         * addFavoriteLanguage(langCode) - Fügt Favoritensprache hinzu
+         */
+
+        /* HELP & SUPPORT PAGE FUNCTIONS
+         * openHelp() - Öffnet Hilfe-Seite
+         * searchFAQ(query) - Durchsucht FAQ
+         * expandFAQ(faqId) - Klapt FAQ-Eintrag aus
+         * contactSupport() - Öffnet Kontaktformular
+         * reportBug() - Öffnet Bug-Report
+         * requestFeature() - Öffnet Feature-Request
+         * startLiveChat() - Startet Live-Chat (falls verfügbar)
+         */
+
+        /* NOTIFICATION SETTINGS PAGE FUNCTIONS
+         * openNotificationSettings() - Öffnet Benachrichtigungseinstellungen
+         * togglePushNotifications() - Aktiviert/Deaktiviert Push
+         * setEmailFrequency(frequency) - Setzt E-Mail-Häufigkeit
+         * toggleNotificationType(type) - Aktiviert/Deaktiviert bestimmten Typ
+         * setQuietHours(start, end) - Setzt Ruhezeiten
+         */
+
+        /* BLOCKED USERS PAGE FUNCTIONS
+         * openBlockedUsers() - Öffnet blockierte Nutzer
+         * unblockUser(userId) - Hebt Blockierung auf
+         * viewReportHistory() - Zeigt Melde-Verlauf
+         */
+
+        /* FOLLOWERS PAGE FUNCTIONS
+         * openFollowers() - Öffnet Follower-Liste
+         * openFollowing() - Öffnet "Folge ich"-Liste
+         * followUser(userId) - Folgt Nutzer
+         * unfollowUser(userId) - Entfolgt Nutzer
+         * searchInList(query) - Sucht in der Liste
+         */
+    </script>
+</body>
+</html>
